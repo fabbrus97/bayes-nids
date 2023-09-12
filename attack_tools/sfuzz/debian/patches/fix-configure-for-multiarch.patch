@@ -1,0 +1,21 @@
+From: Kali Developers <devel@kali.org>
+Date: Fri, 18 Jun 2021 13:41:28 +0200
+Subject: fix-configure-for-multiarch
+
+---
+ configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index 23d3860..2bc4643 100755
+--- a/configure
++++ b/configure
+@@ -66,7 +66,7 @@ CROSS_COMPILE=""
+ PLUGIN_SUPPORT=""
+ SNOOP_SUPPORT=""
+ CC_CHECK=""
+-LIBDIRS=`$CAT /etc/ld.so.conf 2> /dev/null`
++LIBDIRS=`$CAT /etc/ld.so.conf /etc/ld.so.conf.d/*.conf 2> /dev/null`
+ OS_SYSTEM=`$UNAME -s 2> /dev/null`
+ XCFLAGS="-g -O2 -Wall -Werror -I."
+ XCFLAGS_EXTRA=""

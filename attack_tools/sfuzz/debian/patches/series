@@ -1,0 +1,2 @@
+fix-configure-for-multiarch.patch
+fix-cflags-ldflags.patch

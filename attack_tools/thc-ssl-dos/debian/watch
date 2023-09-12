@@ -1,0 +1,6 @@
+version=4
+opts=dversionmangle=s/.*/0.No-Site/ \
+https://people.debian.org/~eriberto/ FakeWatchNoUpstreamSiteForThisPackage-(\d\S+)\.gz
+# Previously, THC hosted these on their site, but they redid the site and
+# dropped a lot of the old things, so this no longer made the cut.
+#http://www.thc.org/thc-ssl-dos/ thc-ssl-dos-([\d\.]+)\.(?:tgz|tbz2|txz|tar\.gz|tar\.bz2|tar\.xz)

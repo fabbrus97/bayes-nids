@@ -1,0 +1,8 @@
+version=4
+opts="mode=git, pretty=0.7.1~git%cd, pgpmode=none" \
+  https://github.com/orgcandman/Simple-Fuzzer HEAD
+
+# Upstream hasn't tagged a release since 0.2.0, but the current release version
+# is 0.7.1.
+#opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/sfuzz-$1\.tar\.gz/ \
+#  https://github.com/orgcandman/Simple-Fuzzer/tags .*/v?(\d\S*)\.tar\.gz

@@ -1,0 +1,22 @@
+Source: sfuzz
+Section: utils
+Priority: optional
+Maintainer: Kali Developers <devel@kali.org>
+Uploaders: Devon Kearns <dookie@kali.org>,
+           Mati Aharoni <muts@kali.org>,
+           Sophie Brun <sophie@offensive-security.com>,
+Build-Depends: debhelper-compat (= 13), libssl-dev
+Standards-Version: 4.6.2
+Homepage: http://aconole.brad-x.com/programs/sfuzz.html
+Vcs-Git: https://gitlab.com/kalilinux/packages/sfuzz.git
+Vcs-Browser: https://gitlab.com/kalilinux/packages/sfuzz
+
+Package: sfuzz
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Black Box testing utilities
+ In the same vein as the Generic Protocol Framework, sfuzz is 
+ a really simple to use black box testing suite called Simple 
+ Fuzzer (what else would you expect?). The goal is to provide 
+ a simple to use, but fairly powerful and flexible black box 
+ testing utility.
