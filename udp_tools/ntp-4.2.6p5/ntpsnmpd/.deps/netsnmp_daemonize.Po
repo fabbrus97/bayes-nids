@@ -1,0 +1,12 @@
+netsnmp_daemonize.o: netsnmp_daemonize.c /usr/include/stdc-predef.h \
+ /usr/include/net-snmp/net-snmp-config.h \
+ /usr/include/net-snmp/system/linux.h /usr/include/net-snmp/system/sysv.h \
+ /usr/include/net-snmp/system/generic.h \
+ /usr/include/net-snmp/machine/generic.h ../config.h
+/usr/include/stdc-predef.h:
+/usr/include/net-snmp/net-snmp-config.h:
+/usr/include/net-snmp/system/linux.h:
+/usr/include/net-snmp/system/sysv.h:
+/usr/include/net-snmp/system/generic.h:
+/usr/include/net-snmp/machine/generic.h:
+../config.h:

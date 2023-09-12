@@ -1,0 +1,30 @@
+version: '3'
+services:
+  attacktools:
+    image: attack
+    build:
+      context: .
+      dockerfile: Dockerfile.attack_tools
+    container_name: attack_cnc
+    #command: mysqld
+    command: ./tools/start.sh
+    volumes:
+      - mysql_volume:/var/lib/mysql
+     #- ./Mirai-Source-Code:/mirai_src
+     #- ./attack_tools:/tools
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.12
+    environment:
+      - VIRTUAL_HOST=mirai.localhost
+
+networks:
+  iot_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"
+
+volumes:
+  mysql_volume:
+    external: true

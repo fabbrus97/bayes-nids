@@ -1,0 +1,68 @@
+mod_sockproxy.lo: mod_sockproxy.c /usr/include/stdc-predef.h first.h \
+ ../config.h /usr/include/sys/types.h /usr/include/features.h \
+ /usr/include/bits/alltypes.h /usr/include/endian.h \
+ /usr/include/fortify/sys/select.h /usr/include/sys/select.h \
+ /usr/include/stddef.h /usr/include/stdint.h /usr/include/bits/stdint.h \
+ /usr/include/limits.h /usr/include/bits/limits.h \
+ /usr/include/fortify/stdlib.h /usr/include/stdlib.h \
+ /usr/include/alloca.h /usr/include/limits.h \
+ /usr/include/fortify/fortify-headers.h /usr/include/fortify/string.h \
+ /usr/include/string.h /usr/include/fortify/strings.h \
+ /usr/include/strings.h gw_backend.h sys-socket.h \
+ /usr/include/fortify/sys/socket.h /usr/include/sys/socket.h \
+ /usr/include/bits/socket.h /usr/include/fortify/fortify-headers.h \
+ /usr/include/netinet/in.h /usr/include/inttypes.h \
+ /usr/include/netinet/tcp.h /usr/include/sys/un.h array.h buffer.h \
+ base_decls.h chunk.h plugin.h configfile.h vector.h response.h \
+ /usr/include/time.h base.h settings.h /usr/include/sys/time.h http_kv.h \
+ sock_addr.h etag.h log.h status_counter.h
+/usr/include/stdc-predef.h:
+first.h:
+../config.h:
+/usr/include/sys/types.h:
+/usr/include/features.h:
+/usr/include/bits/alltypes.h:
+/usr/include/endian.h:
+/usr/include/fortify/sys/select.h:
+/usr/include/sys/select.h:
+/usr/include/stddef.h:
+/usr/include/stdint.h:
+/usr/include/bits/stdint.h:
+/usr/include/limits.h:
+/usr/include/bits/limits.h:
+/usr/include/fortify/stdlib.h:
+/usr/include/stdlib.h:
+/usr/include/alloca.h:
+/usr/include/limits.h:
+/usr/include/fortify/fortify-headers.h:
+/usr/include/fortify/string.h:
+/usr/include/string.h:
+/usr/include/fortify/strings.h:
+/usr/include/strings.h:
+gw_backend.h:
+sys-socket.h:
+/usr/include/fortify/sys/socket.h:
+/usr/include/sys/socket.h:
+/usr/include/bits/socket.h:
+/usr/include/fortify/fortify-headers.h:
+/usr/include/netinet/in.h:
+/usr/include/inttypes.h:
+/usr/include/netinet/tcp.h:
+/usr/include/sys/un.h:
+array.h:
+buffer.h:
+base_decls.h:
+chunk.h:
+plugin.h:
+configfile.h:
+vector.h:
+response.h:
+/usr/include/time.h:
+base.h:
+settings.h:
+/usr/include/sys/time.h:
+http_kv.h:
+sock_addr.h:
+etag.h:
+log.h:
+status_counter.h:

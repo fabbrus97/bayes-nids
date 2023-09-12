@@ -1,0 +1,10 @@
+FROM alpine:3.18
+
+RUN apk update && apk add busybox-extras perl iptables build-base linux-headers pcre-dev zlib-dev bzip2-dev bison
+
+RUN mkdir /src
+COPY volume_tesi /src
+
+RUN cd /src/lighttpd/bash-4.2.53 && ./configure --without-bash-malloc && make && make install
+RUN cd /src/lighttpd/openssl-1.1.1v && ./config && make && make install
+RUN cd /src/lighttpd/lighttpd-1.4.50/ && ./configure --with-openssl && make && make install

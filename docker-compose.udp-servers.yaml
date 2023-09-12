@@ -1,0 +1,64 @@
+version: '3'
+services:
+  ntpd1:
+    container_name: ntpd_1
+    image: ntpd
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.20
+    volumes:
+      - udp_tools/ntp-4.2.6p5:/opt/ntpd
+    command: ntpd -n
+
+  ntpd2:
+    container_name: ntpd_2
+    image: ntpd
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.21
+    volumes:
+      - udp_tools/ntp-4.2.6p5:/opt/ntpd
+    command: ntpd -n
+
+  dns1:
+    container_name: dns_1
+    image: ubuntu/bind9
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.30
+    environment:
+      - VIRTUAL_HOST=dns1.tomahawk
+  dns2:
+    container_name: dns_2
+    image: ubuntu/bind9
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.31
+    environment:
+      - VIRTUAL_HOST=dns2.tomahawk
+
+  upnp1:                           
+    container_name: upnp_1
+    image: ghcr.io/anacrolix/dms
+    volumes:
+      - "udp_tools/upnp_files:/dmsdir"
+    networks:                      
+       iot_network:                 
+         ipv4_address: 172.16.238.40
+  upnp2:                           
+    container_name: upnp_2
+    image: ghcr.io/anacrolix/dms
+    volumes:
+      - "udp_tools/upnp_files:/dmsdir"
+    networks:                      
+       iot_network:                 
+         ipv4_address: 172.16.238.41
+
+
+networks:
+  iot_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"
+

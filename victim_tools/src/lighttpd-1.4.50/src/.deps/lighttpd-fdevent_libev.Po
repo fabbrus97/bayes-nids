@@ -1,0 +1,34 @@
+lighttpd-fdevent_libev.o: fdevent_libev.c /usr/include/stdc-predef.h \
+ first.h ../config.h /usr/include/sys/types.h /usr/include/features.h \
+ /usr/include/bits/alltypes.h /usr/include/endian.h \
+ /usr/include/fortify/sys/select.h /usr/include/sys/select.h \
+ /usr/include/stddef.h /usr/include/stdint.h /usr/include/bits/stdint.h \
+ /usr/include/limits.h /usr/include/bits/limits.h \
+ /usr/include/fortify/stdlib.h /usr/include/stdlib.h \
+ /usr/include/alloca.h /usr/include/limits.h \
+ /usr/include/fortify/fortify-headers.h fdevent_impl.h base_decls.h \
+ fdevent.h buffer.h log.h
+/usr/include/stdc-predef.h:
+first.h:
+../config.h:
+/usr/include/sys/types.h:
+/usr/include/features.h:
+/usr/include/bits/alltypes.h:
+/usr/include/endian.h:
+/usr/include/fortify/sys/select.h:
+/usr/include/sys/select.h:
+/usr/include/stddef.h:
+/usr/include/stdint.h:
+/usr/include/bits/stdint.h:
+/usr/include/limits.h:
+/usr/include/bits/limits.h:
+/usr/include/fortify/stdlib.h:
+/usr/include/stdlib.h:
+/usr/include/alloca.h:
+/usr/include/limits.h:
+/usr/include/fortify/fortify-headers.h:
+fdevent_impl.h:
+base_decls.h:
+fdevent.h:
+buffer.h:
+log.h:

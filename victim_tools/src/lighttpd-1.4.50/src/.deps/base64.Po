@@ -1,0 +1,22 @@
+base64.o: base64.c /usr/include/stdc-predef.h first.h ../config.h \
+ /usr/include/sys/types.h /usr/include/features.h \
+ /usr/include/bits/alltypes.h /usr/include/endian.h \
+ /usr/include/fortify/sys/select.h /usr/include/sys/select.h \
+ /usr/include/stddef.h /usr/include/stdint.h /usr/include/bits/stdint.h \
+ /usr/include/limits.h /usr/include/bits/limits.h base64.h buffer.h
+/usr/include/stdc-predef.h:
+first.h:
+../config.h:
+/usr/include/sys/types.h:
+/usr/include/features.h:
+/usr/include/bits/alltypes.h:
+/usr/include/endian.h:
+/usr/include/fortify/sys/select.h:
+/usr/include/sys/select.h:
+/usr/include/stddef.h:
+/usr/include/stdint.h:
+/usr/include/bits/stdint.h:
+/usr/include/limits.h:
+/usr/include/bits/limits.h:
+base64.h:
+buffer.h:

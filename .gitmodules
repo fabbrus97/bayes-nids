@@ -1,0 +1,3 @@
+[submodule "attack_tools/mirai"]
+	path = attack_tools/mirai
+	url = git@github.com:fabbrus97/mirai
