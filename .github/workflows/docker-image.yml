@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the attack Docker image
-      run: docker build . --file Dockerfile.attack --tag attack:$(date +%s)
+      run: docker build . --file Dockerfile.attack_tools --tag attack:$(date +%s)
     - uses: actions/checkout@v3
     - name: Build the victim Docker image
       run: docker build . --file Dockerfile.victim --tag victim:$(date +%s)
