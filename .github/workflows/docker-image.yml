@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the attack Docker image
+      run: docker build . --file Dockerfile.attack --tag attack:$(date +%s)
+    - uses: actions/checkout@v3
+    - name: Build the victim Docker image
+      run: docker build . --file Dockerfile.victim --tag victim:$(date +%s)
+    - uses: actions/checkout@v3
+    - name: Build the ntpd image
+      run: docker build . --file Dockerfile.ntpd --tag ntpd:$(date +%s)
+      
