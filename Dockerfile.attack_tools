@@ -13,7 +13,7 @@ COPY attack_tools /tools
 #Get sfuzz:
 #RUN mkdir tools ; cd tools ; git clone https://gitlab.com/kalilinux/packages/sfuzz 
 #fixing a bug & build
-RUN cd /tools/sfuzz ; chmod +x configure && ./configure --cc=gcc --enable-plugin-samples && make
+RUN cd /tools/sfuzz ; ./configure --cc=gcc --enable-plugin-samples && make
 
 #Get and build thc-ssl-dos:
 #RUN apt-get update && apt-get install -y libssl-dev

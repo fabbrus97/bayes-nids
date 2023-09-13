@@ -1,11 +1,15 @@
 FROM alpine:3.18
 
-RUN apk update && apk add busybox-extras perl iptables build-base linux-headers pcre-dev zlib-dev bzip2-dev bison
+RUN apk update && apk add busybox-extras perl iptables build-base linux-headers pcre-dev zlib-dev bzip2-dev autoconf automake libtool
 
 RUN mkdir /src
-COPY ./victim_tools/start.sh /
-COPY ./victim_tools/src /src
+COPY victim_tools/start.sh /
+COPY victim_tools/src /src
 
 RUN cd /src/bash-4.2 && ./configure --without-bash-malloc && make && make install
 RUN cd /src/openssl-1.1.1v && ./config && make && make install
-RUN cd /src/lighttpd-1.4.50/ && ./configure --with-openssl && make && make install
+RUN cd /src/lighttpd-1.4.50/ && autoreconf -f -i && ./configure --with-openssl && make && make install
+
+RUN adduser admin;echo 'admin:12345' | chpasswd
+
+RUN rm /etc/motd

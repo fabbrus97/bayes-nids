@@ -1,9 +1,8 @@
 FROM ubuntu:jammy
 
-RUN apt-get update && apt-get install build-essential perl autoconf automake libtool autogen -y
+RUN apt-get update && apt-get install build-essential perl autoconf automake libtool autogen libopts25 -y
 
 COPY udp_tools/ntp-4.2.6p5 /src
 
-#RUN cd /src && autoreconf -f -i && ./configure  --disable-local-libopts --disable-libopts-install && make && make install
-RUN cd /src && autoreconf -f -i && ./configure && make && make install
+RUN cd /src && autoreconf -f -i && ./configure --disable-local-libopts --disable-libopts-install && make && make install
 

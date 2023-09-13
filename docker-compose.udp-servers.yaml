@@ -7,7 +7,7 @@ services:
       iot_network:
         ipv4_address: 172.16.238.20
     volumes:
-      - udp_tools/ntp-4.2.6p5:/opt/ntpd
+      - ./udp_tools/ntp-4.2.6p5:/opt/ntpd
     command: ntpd -n
 
   ntpd2:
@@ -17,7 +17,7 @@ services:
       iot_network:
         ipv4_address: 172.16.238.21
     volumes:
-      - udp_tools/ntp-4.2.6p5:/opt/ntpd
+      - ./udp_tools/ntp-4.2.6p5:/opt/ntpd
     command: ntpd -n
 
   dns1:
@@ -41,7 +41,7 @@ services:
     container_name: upnp_1
     image: ghcr.io/anacrolix/dms
     volumes:
-      - "udp_tools/upnp_files:/dmsdir"
+      - ./udp_tools/upnp_files:/dmsdir
     networks:                      
        iot_network:                 
          ipv4_address: 172.16.238.40
@@ -49,7 +49,7 @@ services:
     container_name: upnp_2
     image: ghcr.io/anacrolix/dms
     volumes:
-      - "udp_tools/upnp_files:/dmsdir"
+      - ./udp_tools/upnp_files:/dmsdir
     networks:                      
        iot_network:                 
          ipv4_address: 172.16.238.41
