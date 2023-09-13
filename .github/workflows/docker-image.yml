@@ -42,7 +42,7 @@ jobs:
         file: Dockerfile.attack_tools
         push: true
         tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels
+        labels: ${{ steps.meta.outputs.labels }}
       #run: docker build . --file Dockerfile.attack_tools --tag attack:$(date +%s)
     
     
