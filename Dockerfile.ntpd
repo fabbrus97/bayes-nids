@@ -1,6 +1,6 @@
 FROM ubuntu:jammy
 
-RUN apt-get update && apt-get install build-essential perl autoconf automake libtool autogen libopts25 -y
+RUN apt-get update && apt-get install build-essential perl autoconf automake libtool autogen libopts25 lynx -y
 
 COPY udp_tools/ntp-4.2.6p5 /src
 
