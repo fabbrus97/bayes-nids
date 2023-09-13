@@ -4,5 +4,5 @@ RUN apt-get update && apt-get install build-essential perl autoconf automake lib
 
 COPY udp_tools/ntp-4.2.6p5 /src
 
-RUN cd /src && autoreconf -f -i && ./configure --disable-local-libopts --disable-libopts-install && make && make install
+RUN cd /src && ./configure --disable-local-libopts --disable-libopts-install && make && make install
 
