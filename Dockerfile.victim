@@ -8,7 +8,7 @@ COPY victim_tools/src /src
 
 RUN cd /src/bash-4.2 && chmod +x configure && ./configure --without-bash-malloc && make && make install
 RUN cd /src/openssl-1.1.1v && chmod +x config && ./config && make && make install
-RUN cd /src/lighttpd-1.4.50/ && ./configure --with-openssl && make && make install
+RUN cd /src/lighttpd-1.4.50/ && chmod +x configure && ./configure --with-openssl && make && make install
 
 RUN adduser admin;echo 'admin:12345' | chpasswd
 
