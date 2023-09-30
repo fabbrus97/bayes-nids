@@ -2,7 +2,7 @@ version: '3'
 services:
   ntpd1:
     container_name: ntpd_1
-    image: ntpd
+    image: ghcr.io/fabbrus97/bayes-nids-ntpd
     networks:
       iot_network:
         ipv4_address: 172.16.238.20
@@ -12,7 +12,7 @@ services:
 
   ntpd2:
     container_name: ntpd_2
-    image: ntpd
+    image: ghcr.io/fabbrus97/bayes-nids-ntpd
     networks:
       iot_network:
         ipv4_address: 172.16.238.21

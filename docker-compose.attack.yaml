@@ -1,7 +1,7 @@
 version: '3'
 services:
   attacktools:
-    image: attack
+    image: ghcr.io/fabbrus97/bayes-nids-attack
     build:
       context: .
       dockerfile: Dockerfile.attack_tools

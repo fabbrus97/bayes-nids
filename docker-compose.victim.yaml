@@ -2,7 +2,7 @@ version: '3'
 services:
   homehub:
     container_name: dl-homehub
-    image: victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -16,7 +16,7 @@ services:
 
   cam1:
     container_name: dl-cam1
-    image: victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
