@@ -3,6 +3,12 @@
 
 telnetd #-l /bin/ash
 
+if [ $# -gt 0 ] ; then
+    if [[ $1 == nohttp ]] ; then
+        exit
+    fi  
+fi
+
 mkdir -p /var/log/lighttpd/
 mkdir -p /opt/lighttpd
 mkdir -p /var/www

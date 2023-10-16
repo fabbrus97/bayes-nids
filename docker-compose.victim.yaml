@@ -27,6 +27,139 @@ services:
     networks:
       iot_network:
         ipv4_address: 172.16.238.51
+  cam2:
+    container_name: dl-cam2
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b2:c5:54:44:0f:11
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.52
+
+    
+  daycam1:
+    container_name: dl-daycam1
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b0:c5:54:46:48:5d
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.53
+  daycam2:
+    container_name: dl-daycam2
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b0:c5:54:3d:3e:93
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.54
+  daycam3:
+    container_name: dl-daycam3
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b0:c5:54:3d:3f:8f
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.55
+  daycam4:
+    container_name: dl-daycam4
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b0:c5:54:42:8f:a6
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.56
+  daycam5:
+    container_name: dl-daycam5
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b0:c5:54:42:8f:e5
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.57
+  daycam6:
+    container_name: dl-daycam6
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh  
+    mac_address: b0:c5:54:42:8f:88
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.58
+
+  smartplug1:
+    container_name: dl-smartplug1
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh nohttp
+    mac_address: c4:12:f5:16:40:55
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.59
+  smartplug2:
+    container_name: dl-smartplug2
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh nohttp
+    mac_address: c4:12:f5:16:40:6e
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.60
+  smartplug3:
+    container_name: dl-smartplug3
+    image: ghcr.io/fabbrus97/bayes-nids-victim
+    volumes:
+      - ./victim_tools/lighttpd/config:/opt/lighttpd
+      - ./victim_tools/lighttpd/www/:/var/www
+      - ./victim_tools/lighttpd/ssl/:/var/ssl
+    command: /start.sh nohttp
+    mac_address: c4:12:f5:16:40:3b
+
+    networks:
+      iot_network:
+        ipv4_address: 172.16.238.61
 
 
 

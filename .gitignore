@@ -1,1 +1,4 @@
+.vscode
 *.az.yaml
+azure/**/obj
+azure/**/bin
