@@ -1,10 +1,10 @@
 version: '3'
 services:
   attacktools:
-    image: ghcr.io/fabbrus97/bayes-nids-attack
-    build:
-      context: .
-      dockerfile: Dockerfile.attack_tools
+    image: ghcr.io/fabbrus97/bayes-nids-attack:main
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile.attack_tools
     container_name: attack_cnc
     #command: mysqld
     command: ./tools/start.sh
@@ -20,6 +20,7 @@ services:
 
 networks:
   iot_network:
+    name: iot_network
     ipam:
       driver: default
       config:

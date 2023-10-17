@@ -9,6 +9,7 @@ RUN tar -xf /tmp/go.tar.gz -C /usr/local
 RUN echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 
 COPY attack_tools /tools
+RUN chmod +x /tools/start.sh
 
 #Get sfuzz:
 #RUN mkdir tools ; cd tools ; git clone https://gitlab.com/kalilinux/packages/sfuzz 
