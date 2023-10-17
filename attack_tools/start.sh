@@ -13,6 +13,7 @@ cd /tools/iot-malware/BASHLITE && gcc client.c --static -DX86_BUIL -o bl_bot
 cd /tools/iot-malware/BASHLITE && gcc server.c -o bl_server
 # mirai - NOTE setup.py should already be executed
 cd /tools/mirai/ && chmod +x build.sh && ./build.sh debug telnet 
+cd /tools/mirai/ && chmod +x setup.sh && ./setup.sh 
 cd /tools/mirai && cat ./tools/db.sql | mysql
 service mysql restart
 # sfuzz
