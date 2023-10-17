@@ -2,7 +2,7 @@ version: '3'
 services:
   homehub:
     container_name: dl-homehub
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
