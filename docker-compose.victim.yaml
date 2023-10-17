@@ -16,7 +16,7 @@ services:
 
   cam1:
     container_name: dl-cam1
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -29,7 +29,7 @@ services:
         ipv4_address: 172.16.238.51
   cam2:
     container_name: dl-cam2
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -44,7 +44,7 @@ services:
     
   daycam1:
     container_name: dl-daycam1
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -57,7 +57,7 @@ services:
         ipv4_address: 172.16.238.53
   daycam2:
     container_name: dl-daycam2
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -70,7 +70,7 @@ services:
         ipv4_address: 172.16.238.54
   daycam3:
     container_name: dl-daycam3
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -83,7 +83,7 @@ services:
         ipv4_address: 172.16.238.55
   daycam4:
     container_name: dl-daycam4
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -96,7 +96,7 @@ services:
         ipv4_address: 172.16.238.56
   daycam5:
     container_name: dl-daycam5
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -109,7 +109,7 @@ services:
         ipv4_address: 172.16.238.57
   daycam6:
     container_name: dl-daycam6
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -123,7 +123,7 @@ services:
 
   smartplug1:
     container_name: dl-smartplug1
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -136,7 +136,7 @@ services:
         ipv4_address: 172.16.238.59
   smartplug2:
     container_name: dl-smartplug2
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -149,7 +149,7 @@ services:
         ipv4_address: 172.16.238.60
   smartplug3:
     container_name: dl-smartplug3
-    image: ghcr.io/fabbrus97/bayes-nids-victim
+    image: ghcr.io/fabbrus97/bayes-nids-victim:main
     volumes:
       - ./victim_tools/lighttpd/config:/opt/lighttpd
       - ./victim_tools/lighttpd/www/:/var/www
@@ -165,6 +165,7 @@ services:
 
 networks:
   iot_network:
+    name: iot_network
     ipam:
       driver: default
       config:
