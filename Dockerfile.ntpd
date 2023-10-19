@@ -5,4 +5,4 @@ RUN apt-get update && apt-get install build-essential perl autoconf automake lib
 COPY udp_tools/ntp-4.2.6p5 /src
 
 RUN cd /src && chmod +x configure && ./configure --disable-local-libopts --disable-libopts-install && make && make install
-RUN echo -e '#!/bin/bash\n/src/ntpd/ntpd -n' > /start.sh ; chmod +x /start.sh
+RUN echo '#!/bin/bash\n/src/ntpd/ntpd -n' > /start.sh ; chmod +x /start.sh
