@@ -1,5 +1,7 @@
 #!/bin/ash
 
+ln -s /usr/local/bin/bash /bin/bash
+
 if [ $# -gt 0 ] ; then
     if [[ $1 == nohttp ]] ; then
 	telnetd -F

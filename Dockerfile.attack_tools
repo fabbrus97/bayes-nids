@@ -2,6 +2,7 @@ FROM ubuntu:22.04
 
 RUN  apt-get update && apt-get install -y mysql-server mysql-client tar electric-fence libc6-dev nmap tcpdump iputils-ping python3 git build-essential netcat curl libssl-dev
 RUN apt-get update && apt-get install -y python2.7
+RUN apt-get update && apt-get install -y wfuzz python3.10-distutils
 
 #go installation
 RUN curl https://dl.google.com/go/go1.20.5.linux-amd64.tar.gz > /tmp/go.tar.gz
@@ -26,3 +27,6 @@ RUN cd /tools/Saddam-new ; python2.7 -m virtualenv .
 
 #Get bashlite
 #RUN cd /tools ; git clone https://github.com/ifding/iot-malware
+
+#Get cgi urls file
+RUN curl "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/CGIs.txt" > /tools/CGIs.txt

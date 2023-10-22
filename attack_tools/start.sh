@@ -9,8 +9,8 @@ export PATH=/usr/local/go/bin:$PATH
 #   build   #
 #############
 # bashlite
-cd /tools/iot-malware/BASHLITE && gcc client.c --static -DX86_BUIL -o bl_bot
-cd /tools/iot-malware/BASHLITE && gcc server.c -o bl_server
+cd /tools/iot-malware/BASHLITE && gcc --static client.c -DX86_BUILD -o bl_bot
+cd /tools/iot-malware/BASHLITE && gcc --static server.c -o bl_server
 # mirai - NOTE setup.py should already be executed
 cd /tools/mirai/ && chmod +x build.sh && ./build.sh debug telnet scanner 
 cd /tools/mirai/ && chmod +x setup.sh && ./setup.sh 
