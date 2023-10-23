@@ -19,7 +19,7 @@ mkdir $tmp_folder
 
 function run_zeek(){
 	#2. extract data to that folder
-        zeek -r $1 addFeatures36-47.zeek Log::default_logdir=$tmp_folder
+        zeek -C -r $1 addFeatures36-47.zeek Log::default_logdir=$tmp_folder
         #2.1 extract the filename
         name=`echo $1 | awk ' {
         	out = gensub(/.+\//, "", "g", $0 )

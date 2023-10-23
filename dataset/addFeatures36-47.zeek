@@ -38,8 +38,8 @@ export {
 	    ct_dst_sport_ltm:	count   &log	&optional;
 	    ct_dst_src_ltm:		count   &log	&optional;
 
-		#previous features come from NB15, these are my additions
-	    is_telnet_login:	count	&log	&optional;
+	    #previous features come from NB15, these are my additions
+	    #is_telnet_login:	count	&log	&optional;
 
 	};
 }
@@ -61,7 +61,7 @@ event new_packet(c: connection, p: pkt_hdr){
 	local ct_src_dport_ltm: count; 
 	local ct_dst_sport_ltm: count; 
 	local ct_dst_src_ltm: count; 
-	local is_telnet_login: count = 0; 
+	#local is_telnet_login: count = 0; 
 	
 
 	is_sm_ips_ports = feat_is_sm_ips_ports(c);
@@ -110,8 +110,8 @@ event new_packet(c: connection, p: pkt_hdr){
 			$ct_src_ltm = ct_src_ltm,
 			$ct_src_dport_ltm = ct_src_dport_ltm,
 			$ct_dst_sport_ltm = ct_dst_sport_ltm,
-			$ct_dst_src_ltm = ct_dst_src_ltm,
-			$is_telnet_login = is_telnet_login]);
+			$ct_dst_src_ltm = ct_dst_src_ltm]);
+			# $is_telnet_login = is_telnet_login]);
 
 
 	if (c$uid !in uid_set){
@@ -125,58 +125,15 @@ event new_packet(c: connection, p: pkt_hdr){
 	
 }
 
-const login_failure_msgs: set[string] = {
-  "invalid",
-  "Invalid",
-  "incorrect",
-  "Incorrect",
-  "failure",
-  "Failure",
-  # "Unable to authenticate",
-  # "unable to authenticate",
-  "User authorization failure",
-  "Login failed",
-  "Login incorrect",
-  "INVALID",
-  "Sorry.",
-  "Sorry,",
-} &redef;
-
-
-#for telnet
-event authentication_accepted(name: string, c: connection){
-	print "AUTH EVENT TELNET ACC";
-	Log::write( AdditionalFeatures::ADDLOG, [$uid = c$uid, $ts=c$start_time, $is_telnet_login = 1]);
-}
-
-event authentication_rejected(name: string, c:connection){
-	print "AUTH EVENT TELNET REJ";
-}
-event login_failure(c: connection, user: string, client_user: string, password: string, line: string){
-	print "AUTH EVENT TELNET REJ";
-	#Log::write( AdditionalFeatures::ADDLOG, [$uid = c$uid, $ts=c$start_time, $pis_telnet_login = 2]);
-}
-
-
-
-event login_output_line(c: connection, line: string){
-	print fmt("TELNET OUT EVENT: %s", line);
-}
-event login_input_line(c: connection, line: string){
-	print fmt("TELNET IN EVENT: %s", line);
-}
 
 event zeek_init(){
-	local telnet = { 23/tcp };
+	# local telnet = { 23/tcp };
 
 	Log::create_stream(ADDLOG, [$columns=Additional, $path="additional_features"]);
 	#Log::create_stream(Login::Log_LOGIN, [$columns=Login::Info, $path="login"]);
 
-	Analyzer::register_for_ports(Analyzer::ANALYZER_TELNET, telnet );
+	#Analyzer::register_for_ports(Analyzer::ANALYZER_TELNET, telnet );
 	
-	# Log::disable_stream(Conn::LOG);
-	# Log::disable_stream(HTTP::LOG);
-	# Log::disable_stream(FTP::LOG);
 }
 
 
