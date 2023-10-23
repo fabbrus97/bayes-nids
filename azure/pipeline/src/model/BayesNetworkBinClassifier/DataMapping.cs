@@ -41,25 +41,21 @@ public class DataMapping:
 
     public int GetFeatureCount(List<double[]> instanceSource)
     {
-        Console.WriteLine("Ciao mondo 2");
         return instanceSource[0].Count();
     }
 
     public int[][]? GetFeatureIndexes(List<double[]> instanceSource, int batchNumber = 0)
     {  
-        Console.WriteLine("Ciao mondo 3");
         return null;
     }
 
     public int[]? GetFeatureIndexes(int instance, List<double[]> instanceSource)
     {
-        Console.WriteLine("Ciao mondo 4");
         return null;
     }
 
     public double[][] GetFeatureValues(List<double[]> instanceSource, int batchNumber = 0)
     {
-        Console.WriteLine("Ciao mondo 5");
         if (batchNumber > 0){
             int elementsPerBatch = (int)(instanceSource.Count()/Batch);
             int firstElement = elementsPerBatch*(batchNumber - 1);
@@ -71,17 +67,14 @@ public class DataMapping:
 
     public double[] GetFeatureValues(int instance, List<double[]> instanceSource)
     {
-        Console.WriteLine("Ciao mondo 6");
         return instanceSource[instance];
     }
 
 
     public bool[] GetLabels(List<double[]> instanceSource, List<string> labelSource, int batchNumber = 0)
     {
-        Console.WriteLine("Ciao mondo 7");
         // return new bool[] {"normal", "intrusion"};
         bool[] labls = new bool[instanceSource.Count()];
-        Console.WriteLine("Ho " + instanceSource.Count() + " etichette da fornire");
         for (int i = 0; i < instanceSource.Count(); i++)
         {
             labls[i] = true;

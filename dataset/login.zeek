@@ -1,5 +1,5 @@
 module Login;
-
+@load base/bif/plugins/Zeek_TCP.events.bif.zeek
 # log telnet, rlogin, and rsh events to login.log
 
 export {
@@ -60,7 +60,10 @@ const login_prompts: set[string] = {
   "Username:",
   "User:",
   "Member Name",
-#  "Escape character is '^]'.",
+  "aabb9177a4f2 login:",
+  # "Escape character is '^]'.",
+  "password:",
+  "Password:",
   "User Access Verification",
   "Cisco Systems Console",
 } &redef;
@@ -92,6 +95,7 @@ const login_failure_msgs: set[string] = {
 const router_prompts: set[string] = {} &redef;
 
 const login_success_msgs: set[string] = {
+  "aabb9177a4f2:~$",
   "Last login",
   "Last successful login",
   "Last   successful login",
@@ -143,6 +147,8 @@ function set_login_session(c : connection) {
   }
 }
 
+
+
 # login_message - log to login.log
 function login_message(s : Info){
 
@@ -162,18 +168,19 @@ function login_message(s : Info){
 }
 
 # create log stream for login.log and register telnet, rlogin, and rsh analyzers
-event zeek_init() &priority = 5 {
-  print "HELLO FROM LOGIN";
+# event zeek_init() &priority = 5 {
+event zeek_init(){
   #Log::create_stream(Login::Log_LOGIN, [$columns = Info, $ev = log_login, $path = "login"]);
   #Log::create_stream(Login::Log_LOGIN, [$columns = Info, $path = "login"]);
   Analyzer::register_for_ports(Analyzer::ANALYZER_TELNET, telnet_ports);
-  Analyzer::register_for_ports(Analyzer::ANALYZER_RLOGIN, rlogin_ports);
-  Analyzer::register_for_ports(Analyzer::ANALYZER_RSH, rsh_ports);
+  # Analyzer::register_for_ports(Analyzer::ANALYZER_RLOGIN, rlogin_ports);
+  # Analyzer::register_for_ports(Analyzer::ANALYZER_RSH, rsh_ports);
 }
 
 # login_confused - Generated when tracking of Telnet/Rlogin authentication failed
 # https://docs.zeek.org/en/current/scripts/base/bif/plugins/Zeek_Login.events.bif.zeek.html#id-login_confused
-event login_confused(c : connection, msg : string, line : string) &priority = 5 {
+event login_confused(c : connection, msg : string, line : string){
+# event login_confused(c : connection, msg : string, line : string) &priority = 5 {
   print "login_confused", msg, line;
 
   set_login_session(c);
@@ -183,7 +190,8 @@ event login_confused(c : connection, msg : string, line : string) &priority = 5 
 
 # login_failure - Generated when tracking of Telnet/Rlogin authentication failed
 # https://docs.zeek.org/en/current/scripts/base/bif/plugins/Zeek_Login.events.bif.zeek.html#id-login_failure
-event login_failure(c : connection, user : string, client_user : string, password : string, line : string) &priority = 5 {
+event login_failure(c : connection, user : string, client_user : string, password : string, line : string) {
+# event login_failure(c : connection, user : string, client_user : string, password : string, line : string) &priority = 5 {
   print "login_failure", user, client_user, password, line;
 
   set_login_session(c);
@@ -201,7 +209,8 @@ event login_failure(c : connection, user : string, client_user : string, passwor
 
 # login_success - Generated for successful Telnet/Rlogin logins
 # https://docs.zeek.org/en/current/scripts/base/bif/plugins/Zeek_Login.events.bif.zeek.html#id-login_success
-event login_success(c : connection, user : string, client_user : string, password : string, line : string) &priority = 5 {
+event login_success(c : connection, user : string, client_user : string, password : string, line : string) {
+# event login_success(c : connection, user : string, client_user : string, password : string, line : string) &priority = 5 {
   print "login_success", user, client_user, password, line;
 
   set_login_session(c);
@@ -218,9 +227,9 @@ event login_success(c : connection, user : string, client_user : string, passwor
   login_message(c$login);
 }
 
-event connection_state_remove(c : connection) &priority = -5 {
+event connection_state_remove(c : connection){
+# event connection_state_remove(c : connection) &priority = -5 {
   if (c?$login) {
-
     if ( c$login$logged == F) {
       login_message(c$login);
     }
@@ -235,14 +244,15 @@ event connection_state_remove(c : connection) &priority = -5 {
 # event activating_encryption(c: connection) { print "activating_encryption"; }
 event authentication_accepted(name: string, c: connection) { print "authentication_accepted", name; }
 event authentication_rejected(name: string, c: connection) { print "authentication_rejected", name; }
-# event authentication_skipped(c: connection) { print "authentication_skipped"; }
-# event bad_option(c: connection) { print "bad_option"; }
-# event bad_option_termination(c: connection) { print "bad_option_termination"; }
-# event inconsistent_option(c: connection) { print "inconsistent_option"; }
+event authentication_skipped(c: connection) { print "authentication_skipped"; }
+event bad_option(c: connection) { print "bad_option"; }
+event bad_option_termination(c: connection) { print "bad_option_termination"; }
+event inconsistent_option(c: connection) { print "inconsistent_option"; }
+event login_prompt(c: connection, prompt: string){ print "login prompt", prompt; }
 # event login_confused_text(c: connection, line: string) { print "login_confused_text", line; }
 event login_display(c: connection, display: string) { print "login_display", display; }
-event login_input_line(c: connection, line: string) { print "login_input_line", line; }
-event login_output_line(c: connection, line: string) { print "login_output_line", line; }
+# event login_input_line(c: connection, line: string) { print "login_input_line", line; }
+# event login_output_line(c: connection, line: string) { print "login_output_line", line; }
 event login_terminal(c: connection, terminal: string) { print "login_terminal", terminal; }
 # event rsh_reply(c: connection, client_user: string, server_user: string, line: string) { print "rsh_reply", client_user, server_user, line; }
 # event rsh_request(c: connection, client_user: string, server_user: string, line: string; new_session: bool) { print "rsh_request", client_user, server_user, line, new_session; }
