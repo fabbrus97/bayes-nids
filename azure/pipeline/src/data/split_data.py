@@ -5,34 +5,42 @@ import os
 import threading
 
 def process_csv():
-    file = None
-    file_attack = None
-    mutex.acquire()
-    n = counter
-    counter += 1
-    if len(input_path_queue):
-        file = input_path_queue.pop()
-    if len(input_path_attack_queue) > 0:
-        file_attack = input_path_attack_queue.pop()
-    mutex.release()
+    global counter
+    while True:
+        file = None
+        file_attack = None
+        mutex.acquire()
+        n = counter
+        counter += 1
+        hasWork = False
+        if len(input_path_queue) > 0:
+            file = input_path_queue.pop()
+            hasWork = True
+        if len(input_path_attack_queue) > 0:
+            file_attack = input_path_attack_queue.pop()
+            hasWork = True
+        mutex.release()
 
-    df = pd.DataFrame()
-
-    if file is not None:
-        df_normal = pd.read_csv(os.path.join(args.input_path, file))
-        pd.concat(df, df_normal)
-    if file_attack is not None:
-        df_attack = pd.read_csv(os.path.join(args.input_path, file_attack))
-        pd.concat(df, df_attack)
-
+        if not hasWork:
+            break
     
-    train = df.sample(frac=args.fraction)
-    test  = df.drop(train.index)
-
-    train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"))
-    test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"))
-    # train = train.sample(frac=1).reset_index(drop=True) #shuffle in place
-    # test = test.sample(frac=1).reset_index(drop=True) #shuffle in place
+        df = pd.DataFrame()
+    
+        if file is not None:
+            df_normal = pd.read_csv(os.path.join(args.input_path, file))
+            pd.concat(df, df_normal)
+        if file_attack is not None:
+            df_attack = pd.read_csv(os.path.join(args.input_path, file_attack))
+            df = pd.concat([df, df_attack])
+    
+        
+        test = df.sample(frac=args.fraction)
+        train  = df.drop(test.index)
+    
+        train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"))
+        test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"))
+        # train = train.sample(frac=1).reset_index(drop=True) #shuffle in place
+        # test = test.sample(frac=1).reset_index(drop=True) #shuffle in place
 
 
 if __name__ == "__main__":
