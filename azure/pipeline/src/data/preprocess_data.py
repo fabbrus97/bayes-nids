@@ -14,7 +14,12 @@ def convert_port(data):
         pass
     return port
 
-def one_hot_encoding():
+def fake_one_hot_encoding():
+    """
+    due to the huge amount of values to encode, this is actually a "factorization" (as in pd.factorize), 
+    but the bayes model will use a weight not for the e.g. "SrcAddr" attribute, but instead will use a weight
+    for every address (SrcAddr192.168.1.1, SrcAddr10.0.0.1, ...) as in an one hot encoding setting.
+    """
     output_path = args.output_path
     
     while True:
@@ -33,20 +38,20 @@ def one_hot_encoding():
         df = pd.read_csv(os.path.join(output_path, filename))
 
         for key in variables2encode.keys():
-            vals2process = len(variables2encode[key])
-            counter = 0
-            for val in variables2encode[key]: 
-                #print("processing  val", val, "key", key, counter, "/", vals2process, "file:", filename)
-                counter += 1
-                newcol = [int(x == val) for x in df[key]] #df[key].str.contains(val)
+            df[key] = df[key].apply(lambda x: variables2encode[key].index(x)) #substitute each value with an index 0..n
+            # vals2process = len(variables2encode[key])
+            # counter = 0
+            # for val in variables2encode[key]: 
+            #     print("processing  val", val, "key", key, counter, "/", vals2process, "file:", filename)
+            #     counter += 1
+            #     newcol = [int(x == val) for x in df[key]] #df[key].str.contains(val)
                 
-                df = pd.concat([df, pd.DataFrame(columns=[f"{key}{val}"],
-                            data = newcol)],   # [],
-                            axis=1)
-                  
-            df.drop(labels=[key], axis=1)
+            #     df = pd.concat([df, pd.DataFrame(columns=[f"{key}{val}"],
+            #                 data = newcol)],   # [],
+            #                 axis=1)                  
+            # df.drop(labels=[key], axis=1)
 
-        df.to_csv(os.path.join(output_path, filename))
+        df.to_csv(os.path.join(output_path, filename), index=False)
 
 
 def load_with_pandas():
@@ -72,7 +77,10 @@ def load_with_pandas():
             break
 
         zfilename = filename.replace("-argus", "-zeek")
-        zeek_df = pd.pandas.read_csv(os.path.join(input_path, zfilename), names=["uid","ts","is_sm_ips_ports","ct_state_ttl","ct_flw_http_mthd","is_ftp_login","ct_ftp_login","ct_srv_src","ct_srv_dst","ct_dst_ltm","ct_src_ltm","ct_src_dport_ltm","ct_dst_sport_ltm","ct_dst_src_ltm"], dtype={"ts": 'float64'})
+        zeek_df = pd.pandas.read_csv(os.path.join(input_path, zfilename), names=["uid","ts","is_sm_ips_ports","ct_state_ttl","ct_flw_http_mthd",
+                    "is_ftp_login","ct_ftp_login","ct_srv_src","ct_srv_dst",
+                    "ct_dst_ltm","ct_src_ltm","ct_src_dport_ltm","ct_dst_sport_ltm",
+                    "ct_dst_src_ltm"], dtype={"ts": 'float64'})
         # print(zeek_df.head())
 
 
@@ -84,6 +92,7 @@ def load_with_pandas():
                 converters = {'Sport': convert_port, 'Dport': convert_port},
                 dtype={'StartTime':'float64','LastTime':'float64'})
         # print(argus_df)
+
 
         df = argus_df.merge(zeek_df_grp, how="inner", left_on="StartTime", right_on="ts").sort_values("LastTime").drop("ts", axis=1)
 
@@ -187,8 +196,8 @@ if __name__ == "__main__":
     variables2encode = {
             "SrcAddr": set(),
             "DstAddr": set(),
-            # "Sport": set(),
-            # "Dport": set(),
+            "Sport": set(),
+            "Dport": set(),
             "Proto": set(),
             "State": set()
     }
@@ -216,7 +225,7 @@ if __name__ == "__main__":
     for file in os.listdir(args.output_path):
         if file.endswith(".csv"):
             input_path_queue.append(file)
-    threads = [threading.Thread(target=one_hot_encoding) for i in range(args.nthreads)]
+    threads = [threading.Thread(target=fake_one_hot_encoding) for i in range(args.nthreads)]
 
     for i in range(args.nthreads):
         print("starting thread", i)
