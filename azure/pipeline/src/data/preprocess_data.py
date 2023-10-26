@@ -143,12 +143,16 @@ def load_with_pandas():
         print("writing csv", n)
         df.to_csv(f"{output_path}/raw_traffic_{label}.{n}.csv", index=False)
         
+        vals = {}
         for key in variables2encode.keys():
             #print("adding unique values to set for key", key, "and file", filename)
-            vals = df[key].unique()
-            var2encMut.acquire()
-            variables2encode[key].update(vals)
-            var2encMut.release()
+            vals[key] = set(df[key].unique())
+        
+        
+        var2encMut.acquire()
+        for key in vals.keys():
+            variables2encode[key].update(vals[key])
+        var2encMut.release()
 
 
         # df_encoded = pd.get_dummiess(list(variables2encode["SrcAddr"]))
