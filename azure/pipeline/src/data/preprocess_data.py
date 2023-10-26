@@ -2,7 +2,7 @@ import argparse
 import pandas as pd
 import os
 import threading
-import numpy as np
+import copy
 
 ROW_PER_FILE = 15000
 
@@ -16,7 +16,7 @@ def convert_port(data):
 
 def one_hot_encoding():
     output_path = args.output_path
-
+    
     while True:
         filename = None
         mutex.acquire()
@@ -24,6 +24,7 @@ def one_hot_encoding():
         if len(input_path_queue) > 0:
             filename = input_path_queue.pop()
             hasWork = True
+            #print(len(input_path_queue), "files missing, now working on", filename)
         mutex.release()
 
         if not hasWork:
@@ -35,12 +36,15 @@ def one_hot_encoding():
             vals2process = len(variables2encode[key])
             counter = 0
             for val in variables2encode[key]: 
-                # print("processing  val", val, "key", key, counter, "/", vals2process)
+                #print("processing  val", val, "key", key, counter, "/", vals2process, "file:", filename)
                 counter += 1
                 newcol = [int(x == val) for x in df[key]] #df[key].str.contains(val)
+                
                 df = pd.concat([df, pd.DataFrame(columns=[f"{key}{val}"],
                             data = newcol)],   # [],
                             axis=1)
+                  
+            df.drop(labels=[key], axis=1)
 
         df.to_csv(os.path.join(output_path, filename))
 
@@ -61,6 +65,7 @@ def load_with_pandas():
         if len(input_path_queue) > 0:
             filename = input_path_queue.pop()
             hasWork = True
+            # print(len(input_path_queue), "files missing, now working on", filename)
         mutex.release()
 
         if not hasWork:
@@ -72,6 +77,7 @@ def load_with_pandas():
 
 
         zeek_df_grp = zeek_df.groupby('uid', group_keys=True, sort=False).max()
+        zeek_df_grp.drop_duplicates(subset="ts", keep="last", inplace=True)
         # print(zeek_df_grp)
 
         argus_df = pd.pandas.read_csv(os.path.join(input_path, filename), header=0,
@@ -80,7 +86,6 @@ def load_with_pandas():
         # print(argus_df)
 
         df = argus_df.merge(zeek_df_grp, how="inner", left_on="StartTime", right_on="ts").sort_values("LastTime").drop("ts", axis=1)
-
 
         #    DATA TRANSFORMATION
         #from categorical data to enum ("tcp", "udp", "icmp",... => 1,2,3,...)
@@ -111,7 +116,8 @@ def load_with_pandas():
         #    l = 1
         #df.insert(df.shape[1], "label", [l]*df.shape[0])
         df.insert(df.shape[1], "label", [label]*df.shape[0])
-
+        
+        print("computing quantiles for", filename)
         for key in ["SrcBytes", "DstBytes", "SrcLoad", "DstLoad", "SrcJitter", "DstJitter", "SIntPkt", "DIntPkt", "TcpRtt", "SynAck", "AckDat"]:
             if df[key].empty:
                 print("cannot compute quantile for key", key, "empty axis")
@@ -119,20 +125,21 @@ def load_with_pandas():
             #binnig by quantile - each bin has the same amount of rows; we use  bins
             df[key] = pd.qcut(df[key], q=[0, .25, .5, .75, 1.], duplicates="drop", labels=False)
 
-
-
         # print(df.head())
         #if df_all.count().empty:
         #    df_all = df
         #else:
         #    df_all = pd.concat([df_all, df])
-
+        
+        print("writing csv", n)
         df.to_csv(f"{output_path}/raw_traffic_{label}.{n}.csv", index=False)
-
-        var2encMut.acquire()
+        
         for key in variables2encode.keys():
-            df[key].map(lambda x: variables2encode[key].add(x))
-        var2encMut.release()
+            #print("adding unique values to set for key", key, "and file", filename)
+            vals = df[key].unique()
+            var2encMut.acquire()
+            variables2encode[key].update(vals)
+            var2encMut.release()
 
 
         # df_encoded = pd.get_dummiess(list(variables2encode["SrcAddr"]))
@@ -192,7 +199,6 @@ if __name__ == "__main__":
         if file.find("argus") > 0 and file.endswith(".csv"):
             print("adding filename", file, "to queue")
             input_path_queue.append(file)
-
     threads = [threading.Thread(target=load_with_pandas) for i in range(args.nthreads)]
 
     for i in range(args.nthreads):
@@ -205,11 +211,11 @@ if __name__ == "__main__":
     print("starting one-hot encoding...")
     for key in variables2encode.keys():
         variables2encode[key] = list(variables2encode[key])
+        print(key, "to encode:", len(variables2encode[key]))
     
     for file in os.listdir(args.output_path):
         if file.endswith(".csv"):
             input_path_queue.append(file)
-
     threads = [threading.Thread(target=one_hot_encoding) for i in range(args.nthreads)]
 
     for i in range(args.nthreads):
