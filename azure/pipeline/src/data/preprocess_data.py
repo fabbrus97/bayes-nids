@@ -29,16 +29,18 @@ def fake_one_hot_encoding():
         if len(input_path_queue) > 0:
             filename = input_path_queue.pop()
             hasWork = True
-            #print(len(input_path_queue), "files missing, now working on", filename)
+            print(len(input_path_queue), "files missing, now working on", filename)
         mutex.release()
 
         if not hasWork:
             break
-
+        
         df = pd.read_csv(os.path.join(output_path, filename))
-
         for key in variables2encode.keys():
-            df[key] = df[key].apply(lambda x: variables2encode[key].index(x)) #substitute each value with an index 0..n
+            print("substituting values with index for key", key)
+            df[key] = df[key].apply(lambda x: variables2encode[key][x]) #substitute each value with an index 0..n
+            print("key", key, "done")
+
             # vals2process = len(variables2encode[key])
             # counter = 0
             # for val in variables2encode[key]: 
@@ -223,8 +225,9 @@ if __name__ == "__main__":
     #first step done - executing second step to one-hot encode categorical data
     print("starting one-hot encoding...")
     for key in variables2encode.keys():
-        variables2encode[key] = list(variables2encode[key])
+        # variables2encode[key] = list(variables2encode[key])
         print(key, "to encode:", len(variables2encode[key]))
+        variables2encode[key] = {variables2encode[key].pop(): i for i in range(0, len(variables2encode[key]))}
     
     for file in os.listdir(args.output_path):
         if file.endswith(".csv"):
