@@ -95,13 +95,14 @@ def load_with_pandas():
                 dtype={'StartTime':'float64','LastTime':'float64'})
         # print(argus_df)
 
-
-        df = argus_df.merge(zeek_df_grp, how="inner", left_on="StartTime", right_on="ts").sort_values("LastTime").drop("ts", axis=1)
+        df = argus_df.join(zeek_df_grp.set_index("ts"), how="inner", on="StartTime") #.sort_values("LastTime") #.drop("ts", axis=1)
+        # df = argus_df.merge(zeek_df_grp, how="inner", left_on="StartTime", right_on="ts").sort_values("LastTime").drop("ts", axis=1)
 
         #    DATA TRANSFORMATION
         #from categorical data to enum ("tcp", "udp", "icmp",... => 1,2,3,...)
         #remove NaN from numerical data
 
+        #TODO delete some pcaps in mirai
         #TODO and between features?
 
         df['sTtl'] = df['sTtl'].fillna(0)
