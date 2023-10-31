@@ -2,9 +2,9 @@ import argparse
 import pandas as pd
 import os
 import threading
-import copy
+import itertools
 
-ROW_PER_FILE = 15000
+# ROW_PER_FILE = 15000
 
 def convert_port(data):
     port = 0
@@ -38,6 +38,8 @@ def fake_one_hot_encoding():
         df = pd.read_csv(os.path.join(output_path, filename))
         for key in variables2encode.keys():
             print("substituting values with index for key", key)
+            if key == "proto_state_and":
+                df[key] = df[["Proto", "State"]].itertuples(index=False, name=None)
             df[key] = df[key].apply(lambda x: variables2encode[key][x]) #substitute each value with an index 0..n
             print("key", key, "done")
 
@@ -52,6 +54,8 @@ def fake_one_hot_encoding():
             #                 data = newcol)],   # [],
             #                 axis=1)                  
             # df.drop(labels=[key], axis=1)
+
+        df["proto_state_and"] = variables2encode["proto_state_and"][df[["Proto", "State"]]]
 
         df.to_csv(os.path.join(output_path, filename), index=False)
 
@@ -143,6 +147,7 @@ def load_with_pandas():
         #    df_all = pd.concat([df_all, df])
         
         print("writing csv", n)
+        df.to_csv(os.path.join(output_path, f"raw_traffic_{label}.{n}.csv"), index=False)
         df.to_csv(f"{output_path}/raw_traffic_{label}.{n}.csv", index=False)
         
         vals = {}
@@ -224,6 +229,10 @@ if __name__ == "__main__":
 
     #first step done - executing second step to one-hot encode categorical data
     print("starting one-hot encoding...")
+
+    proto_state_and = list(itertools.product(variables2encode["Proto"], variables2encode["State"]))
+    variables2encode["proto_state_and"] = proto_state_and
+
     for key in variables2encode.keys():
         # variables2encode[key] = list(variables2encode[key])
         print(key, "to encode:", len(variables2encode[key]))
