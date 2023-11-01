@@ -39,7 +39,7 @@ def fake_one_hot_encoding():
         for key in variables2encode.keys():
             print("substituting values with index for key", key)
             if key == "proto_state_and":
-                df[key] = df[["Proto", "State"]].itertuples(index=False, name=None)
+                df[key] = list(df[["Proto", "State"]].itertuples(index=False, name=None))
             df[key] = df[key].apply(lambda x: variables2encode[key][x]) #substitute each value with an index 0..n
             print("key", key, "done")
 
