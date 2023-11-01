@@ -51,7 +51,8 @@ public class DataMapping:
 
     public int[]? GetFeatureIndexes(int instance, List<double[]> instanceSource)
     {
-        return null;
+        // return null;
+        return vector.IndexOfAll(x => x != 0.0).ToArray(); // TODO non so se va qua
     }
 
     public double[][] GetFeatureValues(List<double[]> instanceSource, int batchNumber = 0)
@@ -67,7 +68,8 @@ public class DataMapping:
 
     public double[] GetFeatureValues(int instance, List<double[]> instanceSource)
     {
-        return instanceSource[instance];
+        // return instanceSource[instance];
+        return vector.FindAll(x => x != 0.0).Select(vi => vi.Value).ToArray();
     }
 
 
@@ -85,8 +87,10 @@ public class DataMapping:
 
     public bool IsSparse(List<double[]> instanceSource)
     {
-        return false;
+        return true;
     }
 }
 
 
+            
+            

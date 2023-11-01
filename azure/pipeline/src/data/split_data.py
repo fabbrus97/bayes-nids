@@ -33,9 +33,8 @@ def process_csv():
             df_attack = pd.read_csv(os.path.join(args.input_path, file_attack))
             df = pd.concat([df, df_attack])
     
-        
-        test = df.sample(frac=args.fraction)
-        train  = df.drop(test.index)
+        test  = df.sample(frac=args.fraction)
+        train = df.drop(test.index)
     
         train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"))
         test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"))
