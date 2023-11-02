@@ -13,10 +13,37 @@ class Program
     public static string? OutputFolder { get; set; }
     public static int? Batch { get; set; }
 
-    private static string[]? Features { get; set; }
-    private static List<double[]> Data = new List<double[]>();
+    // private static string[]? Features { get; set; }
+    private static List<Instance> Data = new List<Instance>();
     
     private static List<string> Label = new List<string>();
+
+    static List<bool> GenerateIsSparseBitMask(string featureString)
+    {
+        var features = featureString.Split(",");
+        List<bool> bitmask = new List<bool>();
+        foreach (string ft in features)
+        {
+            switch(ft)
+            {
+                case "SrcAddr":
+                case "DstAddr":
+                case "Sport":
+                case "Dport":
+                case "Proto":
+                case "State":
+                case "proto_state_and":
+                    bitmask.Add(true);
+                    break;
+                default:
+                    bitmask.Add(false);
+                    break;
+            }
+        }
+
+        return bitmask;
+        
+    }
 
     static void Main(string[] args)
     {
@@ -25,6 +52,12 @@ class Program
         
         if (args.Length != 4 && args.Length != 6)
         {
+            Console.WriteLine("Wrong number of args! " + args.Length + " used");
+            foreach(string arg in args)
+            {
+                Console.Write($"{arg} ");
+            }
+            Console.WriteLine("");
             Console.WriteLine(usageMessage);
             Environment.Exit(1);
         }
@@ -46,6 +79,7 @@ class Program
                         break;
 
                     default:
+                        Console.WriteLine($"Argument {args[i]} error!");
                         Console.WriteLine(usageMessage);
                         Environment.Exit(1);
                         break;
@@ -54,6 +88,7 @@ class Program
             }
             if (SourceFolder == null || OutputFolder == null)
             {
+                Console.WriteLine("Error in source or output folder!");
                 Console.WriteLine(usageMessage);
                 Environment.Exit(1);
             }
@@ -66,10 +101,12 @@ class Program
             string[] lines = File.ReadAllLines(files[0]);
             
             //Get features from the first file
-            Features = lines[0].Split(",");
+            var isSparseBitmask = GenerateIsSparseBitMask(lines[0]).ToArray();
+            // Features = lines[0].Split(",");
             
             //Get data from all files
-            double[] row_dbl = new double[Features.Length - 1];
+            double[] row_dbl = new double[isSparseBitmask.Length - 1];
+            // double[] row_dbl = new double[Features.Length - 1];
 
             foreach(string file in files)
             {
@@ -83,7 +120,9 @@ class Program
                                 row_dbl[i] = Double.Parse(data) + 1;
                             });
                     // row_str.SkipLast(1).ForEach( (int i, string data) => Console.WriteLine(i + " " + data));
-                    Data.Add(row_dbl);
+                    
+                    Instance inst = new Instance(row_dbl, isSparseBitmask, row_str.Last());
+                    Data.Add(inst);
                     // Get label at the end of the row
                     Label.Add(row_str.Last());
                 }

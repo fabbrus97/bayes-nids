@@ -35,11 +35,11 @@ def fake_one_hot_encoding():
         if not hasWork:
             break
         
+        max_proto = len(variables2encode["Proto"].keys())
+        # max_state = max(variables2encode["State"])
         df = pd.read_csv(os.path.join(output_path, filename))
         for key in variables2encode.keys():
             print("substituting values with index for key", key)
-            if key == "proto_state_and":
-                df[key] = list(df[["Proto", "State"]].itertuples(index=False, name=None))
             df[key] = df[key].apply(lambda x: variables2encode[key][x]) #substitute each value with an index 0..n
             print("key", key, "done")
 
@@ -54,8 +54,9 @@ def fake_one_hot_encoding():
             #                 data = newcol)],   # [],
             #                 axis=1)                  
             # df.drop(labels=[key], axis=1)
-
-        df["proto_state_and"] = variables2encode["proto_state_and"][df[["Proto", "State"]]]
+        df.insert(len(df.columns) - 1, "proto_state_and", list(df[["Proto", "State"]].itertuples(index=False, name=None)))
+        df["proto_state_and"] = df["proto_state_and"].apply(lambda x: 
+                                max_proto*x[0] + x[1]) #substitute each value with an index 0..n
 
         df.to_csv(os.path.join(output_path, filename), index=False)
 
@@ -106,8 +107,6 @@ def load_with_pandas():
         #from categorical data to enum ("tcp", "udp", "icmp",... => 1,2,3,...)
         #remove NaN from numerical data
 
-        #TODO delete some pcaps in mirai
-        #TODO and between features?
 
         df['sTtl'] = df['sTtl'].fillna(0)
         df['dTtl'] = df['dTtl'].fillna(0)
@@ -126,6 +125,8 @@ def load_with_pandas():
         df['Sum'] = df['Sum'].fillna(0)
         df['Sport'] = df['Sport'].fillna(0)
         df['Dport'] = df['Dport'].fillna(0)
+        df['SynAck'] = df['SynAck'].fillna(0)
+        df['AckDat'] = df['AckDat'].fillna(0)
 
         #l = 0
         #if label == "attack":
@@ -135,8 +136,9 @@ def load_with_pandas():
         
         print("computing quantiles for", filename)
         for key in ["SrcBytes", "DstBytes", "SrcLoad", "DstLoad", "SrcJitter", "DstJitter", "SIntPkt", "DIntPkt", "TcpRtt", "SynAck", "AckDat"]:
-            if df[key].empty:
+            if df[key].empty or (df[key] == 0).all():
                 print("cannot compute quantile for key", key, "empty axis")
+                df[key] = 0
                 continue
             #binnig by quantile - each bin has the same amount of rows; we use  bins
             df[key] = pd.qcut(df[key], q=[0, .25, .5, .75, 1.], duplicates="drop", labels=False)
@@ -231,8 +233,8 @@ if __name__ == "__main__":
     #first step done - executing second step to one-hot encode categorical data
     print("starting one-hot encoding...")
 
-    proto_state_and = list(itertools.product(variables2encode["Proto"], variables2encode["State"]))
-    variables2encode["proto_state_and"] = proto_state_and
+    # proto_state_and = list(itertools.product(variables2encode["Proto"], variables2encode["State"]))
+    # variables2encode["proto_state_and"] = proto_state_and
 
     for key in variables2encode.keys():
         # variables2encode[key] = list(variables2encode[key])

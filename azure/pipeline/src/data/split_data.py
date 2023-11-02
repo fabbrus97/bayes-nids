@@ -36,8 +36,8 @@ def process_csv():
         test  = df.sample(frac=args.fraction)
         train = df.drop(test.index)
     
-        train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"))
-        test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"))
+        train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"), index=False)
+        test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"), index=False)
         # train = train.sample(frac=1).reset_index(drop=True) #shuffle in place
         # test = test.sample(frac=1).reset_index(drop=True) #shuffle in place
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--input_path", required=True)
     parser.add_argument("--output_path", required=True)
-    parser.add_argument("--fraction", required=True, type=float)
+    parser.add_argument("--fraction", required=True, type=float) #fraction that will go in the test e.g. 0.3 = 70% train, 30% test
     parser.add_argument("--nthreads", required=False, type=int, default=1)
 
     args = parser.parse_args()
