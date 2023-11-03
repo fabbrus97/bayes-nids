@@ -149,12 +149,11 @@ def information_gain():
     # plt.show()
     plt.savefig(os.path.join("filter_output", "infogain.png"))
     df_mutual_information.to_csv(os.path.join("filter_output", "infogain.csv"))
+    feature_list_file = open(os.path.join("filter_output", "feature_list.txt"), "w")
+    feature_list_file.write(",".join([i[0] for i in df_mutual_information.index.values.tolist()]) + "\n")
     return df_mutual_information.index
-    
 
-"""
-NOTE features should be uncorrelated between them! TODO
-"""
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="filter_features.py",

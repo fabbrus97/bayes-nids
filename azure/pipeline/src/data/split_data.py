@@ -3,9 +3,12 @@ import argparse
 import pandas as pd
 import os
 import threading
+import json
 
 def process_csv():
     global counter
+    global sparse_features
+
     while True:
         file = None
         file_attack = None
@@ -32,7 +35,17 @@ def process_csv():
         if file_attack is not None:
             df_attack = pd.read_csv(os.path.join(args.input_path, file_attack))
             df = pd.concat([df, df_attack])
-    
+
+        indexmax = {}
+        for key in sparse_features.keys():
+            indexmax[key] = max(df[key])
+        
+        varmutex.acquire()
+        for key in sparse_features.keys():
+            if indexmax[key] > sparse_features[key]:
+                sparse_features[key] = indexmax[key]
+        varmutex.release()
+
         test  = df.sample(frac=args.fraction)
         train = df.drop(test.index)
     
@@ -57,8 +70,19 @@ if __name__ == "__main__":
     input_path_queue = []
     input_path_attack_queue = []
     counter = 0
+    sparse_features = {
+        "SrcAddr": 0,
+        "DstAddr": 0,
+        "Sport": 0,
+        "Dport": 0,
+        "Proto": 0,
+        "State": 0,
+        "proto_state_and": 0
+    }
+
 
     mutex = threading.Lock()
+    varmutex = threading.Lock()
     for file in os.listdir(args.input_path):
         if file.endswith(".csv"):
             if file.find("attack"):
@@ -74,3 +98,4 @@ if __name__ == "__main__":
     for i in range(args.nthreads):
         threads[i].join()
     
+    json.dump(sparse_features, open(os.path.join("dataset", "sparse_features_max_index.json"), "w"), indent="  ")

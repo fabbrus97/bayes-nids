@@ -3,7 +3,7 @@ using Microsoft.ML.Probabilistic.Collections;
 using Microsoft.ML.Probabilistic.Factors;
 using Microsoft.ML.Probabilistic.Learners;
 using Microsoft.VisualBasic.FileIO;
-
+using System.Text.Json;
 
 
 class Program
@@ -13,8 +13,9 @@ class Program
     public static string? OutputFolder { get; set; }
     public static int? Batch { get; set; }
 
-    // private static string[]? Features { get; set; }
+    private static string[]? Features { get; set; }
     private static List<Instance> Data = new List<Instance>();
+    private static int[] BaseIndexes; 
     
     private static List<string> Label = new List<string>();
 
@@ -94,16 +95,51 @@ class Program
             }
         }
         //Ok, loading data
+        
+        
         if (Directory.Exists(SourceFolder))
         {
+            // SparseFeatureIndex? sparseFeatureIndex = null;
+            //First of all, sparse feature max index
+            string jsonFile = Directory.GetFiles(SourceFolder, "sparse_features_max_index.json")[0];
+            string[] jsonLines = File.ReadAllLines(jsonFile);
+            string jsonString = string.Join(string.Empty, jsonLines);
+            var sparseFeatureIndex = JsonSerializer.Deserialize<Dictionary<string, int>>(jsonString);
+            
+            //Second, the features we actually need (from filter_features.py) TODO
+
+            //Then the actual data
             string[] files = Directory.GetFiles(SourceFolder, "*.csv");
 
             string[] lines = File.ReadAllLines(files[0]);
             
             //Get features from the first file
             var isSparseBitmask = GenerateIsSparseBitMask(lines[0]).ToArray();
-            // Features = lines[0].Split(",");
-            
+            Features = lines[0].Split(",");
+
+            //BaseIndexes are the index value of the features computed in the following way: e.g. suppose SrcAddr are 1..10, SrcPort are 1..100
+            //and the features are, in order, SrcAddr, SrcBytes, SrcPort.
+            //then BaseIndexes will contain: [0, 10, 11]
+            //and the actual feature_i index will be computed as 0 + BaseIndex[feature_i] is the feature was not one hot encoded,
+            //otherwise value[feature_i] + BaseIndex[feature_i] since values of one hot encoded features are always 1, and what is 
+            //actually saved in the csv it's their index (e.g. SrcAddr1 -> 1, SrcAddr2 -> 2, ..., SrcAddr10 -> 10)
+            BaseIndexes = new int[isSparseBitmask.Length - 1];
+            var cumulative = 0;
+            for(int i = 0; i < Features.Length; i++)
+            {
+                if (Features[i] == "label")
+                    continue;
+                BaseIndexes[i] = cumulative;
+                if (!isSparseBitmask[i])
+                {
+                    cumulative++;
+                }
+                else
+                {
+                    cumulative += sparseFeatureIndex[Features[i]];
+                }
+            }
+
             //Get data from all files
             double[] row_dbl = new double[isSparseBitmask.Length - 1];
             // double[] row_dbl = new double[Features.Length - 1];
@@ -121,7 +157,7 @@ class Program
                             });
                     // row_str.SkipLast(1).ForEach( (int i, string data) => Console.WriteLine(i + " " + data));
                     
-                    Instance inst = new Instance(row_dbl, isSparseBitmask, row_str.Last());
+                    Instance inst = new Instance(row_dbl, BaseIndexes, isSparseBitmask, row_str.Last());
                     Data.Add(inst);
                     // Get label at the end of the row
                     Label.Add(row_str.Last());
@@ -130,7 +166,7 @@ class Program
 
             //Training the classifier
             // Create the Bayes Point Machine classifier from the mapping  
-            var mapping = new DataMapping();  
+            var mapping = new DataMapping(cumulative+1);  
             var classifier = BayesPointMachineClassifier.CreateBinaryClassifier(mapping);
             classifier.Train(Data, Label);
 

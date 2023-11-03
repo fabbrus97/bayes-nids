@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using Microsoft.ML.Probabilistic.Collections;
 using Microsoft.ML.Probabilistic.Learners.Mappings;
 
+
 /*
     reference: https://dotnet.github.io/infer/apiguide/api/Microsoft.ML.Probabilistic.Learners.Mappings.IBayesPointMachineClassifierMapping-4.html
 */
@@ -35,6 +36,11 @@ public class DataMapping:
     // }
 
     private int Batch { get; set; }
+    private int n_features { get; set; }
+    public DataMapping(int n_features)
+    {
+        this.n_features = n_features;
+    }
 
     public int GetClassCount(List<Instance> instanceSource, List<string> labelSource)
     {
@@ -43,7 +49,7 @@ public class DataMapping:
 
     public int GetFeatureCount(List<Instance> instanceSource)
     {
-        return instanceSource[0].featureCount;
+        return this.n_features;
     }
 
     public int[][]? GetFeatureIndexes(List<Instance> instanceSource, int batchNumber = 0)
@@ -67,12 +73,13 @@ public class DataMapping:
             featureIndexes[i] = new int[n_features];
             for(int j = 0; j < n_features; j++)
             {
-                if (!batch[i].isSparse[j])
-                    featureIndexes[i][j] = 0;
-                else
-                {
-                    featureIndexes[i][j] = (int)batch[i].values[j];
-                }
+                featureIndexes[i][j] = batch[i].GetFeatureIndex(j);
+                // if (!batch[i].isSparse[j])
+                //     featureIndexes[i][j] = 0;
+                // else
+                // {
+                //     featureIndexes[i][j] = (int)batch[i].values[j];
+                // }
             }
         }
         return featureIndexes;
@@ -84,10 +91,12 @@ public class DataMapping:
         var indexes = new int[n_features];
         for(int i = 0; i < n_features; i++)
         {
-            if (!instanceSource[instance].isSparse[i])
-                indexes[i] = 0;
-            else
-                indexes[i] = (int)instanceSource[instance].values[i];
+            indexes[i] = instanceSource[instance].GetFeatureIndex(i);
+
+            // if (!instanceSource[instance].isSparse[i])
+            //     indexes[i] = 0;
+            // else
+            //     indexes[i] = (int)instanceSource[instance].values[i];
         }
         return indexes;
         // return vector.IndexOfAll(x => x != 0.0).ToArray(); // TODO non so se va qua
