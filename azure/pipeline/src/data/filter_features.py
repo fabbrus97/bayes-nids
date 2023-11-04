@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import threading
 
-MAX_FILE_INPUT = 100
+MAX_FILE_INPUT = 10
 
 def permutation_feature_importance(features):
     global df
@@ -173,6 +173,7 @@ if __name__ == "__main__":
     file_read = 0
     for file in os.listdir(args.input_path):
         if file.endswith(".csv"):
+            print("opening", file)
             _df = pd.read_csv(os.path.join(args.input_path, file), dtype={"label": 'string', "sTtl": "int64", "dTtl": "int64"})
             df = pd.concat([df, _df])
             file_read += 1

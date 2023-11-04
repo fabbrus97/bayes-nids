@@ -1,3 +1,4 @@
+[Serializable]
 public class Instance
 {
     public double[] values { get; set;}

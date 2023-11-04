@@ -2,3 +2,4 @@
 *.az.yaml
 azure/**/obj
 azure/**/bin
+azure/**/*.bin

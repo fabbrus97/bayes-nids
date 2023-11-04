@@ -24,7 +24,7 @@ the same number of feature indexes and values (arrays over feature indexes must
 not be null).
 */
 
-
+[Serializable]
 public class DataMapping: 
     IBayesPointMachineClassifierMapping<List<Instance>, int, List<string>, bool>
 
@@ -152,22 +152,42 @@ public class DataMapping:
 
     public bool[] GetLabels(List<Instance> instanceSource, List<string> labelSource, int batchNumber = 0)
     {
-        // return new bool[] {"normal", "intrusion"};
         bool[] labls = new bool[instanceSource.Count()];
         for (int i = 0; i < instanceSource.Count(); i++)
         {
             labls[i] = instanceSource[i].label == "normal";
         }
         return labls;
-        
+    
     }
 
     public bool IsSparse(List<Instance> instanceSource)
     {
         return true;
     }
+
+    public EvaluatorMapping ForEvaluation()
+    {
+        return new EvaluatorMapping();
+    }
 }
 
-
-            
-            
+public class EvaluatorMapping:
+    IClassifierEvaluatorMapping<List<Instance>, int, List<string>, bool>
+{
+    public IEnumerable<int> GetInstances(List<Instance> instanceSource)
+    {
+        return Enumerable.Range(0, instanceSource.Count());
+    }
+    public IEnumerable<bool> GetClassLabels(List<Instance> instanceSource, List<string> labelSource)
+    {
+        var labels = new List<bool>();
+        labels.Add(true);
+        labels.Add(false);
+        return labels;
+    }
+    public bool GetLabel(int instance, List<Instance> instanceSource, List<string> labelSource)
+    {
+        return instanceSource[instance].label == "normal";
+    }
+}
