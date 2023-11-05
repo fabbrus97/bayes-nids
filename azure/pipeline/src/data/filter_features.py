@@ -10,22 +10,28 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import threading
 
-MAX_FILE_INPUT = 10
+MAX_FILE_INPUT = 20
 
 def permutation_feature_importance(features):
     global df
     
+    """
     for col in df.columns:
         if col == "label":
             continue
         if col not in features:
             df.drop(columns=col, inplace=True)    
-    
+    """
+
     print("pfi: training model")
     X_train, X_val, y_train, y_val = train_test_split(
         df, df['label'], random_state=42, test_size=0.3)
         #df, test_size=0.2, random_state=42, shuffle=True)
     
+    X_train.drop("label", inplace=True, axis=1)
+    X_val.drop("label", inplace=True, axis=1)
+    print(X_train)
+
     # model = Ridge(alpha=1e-2).fit(X_train, y_train)
     model = BernoulliNB().fit(X_train, y_train)
     print("computing scores")
@@ -192,7 +198,7 @@ if __name__ == "__main__":
     for file in os.listdir(args.input_path):
         if file.endswith(".csv"):
             print("opening", file)
-            _df = pd.read_csv(os.path.join(args.input_path, file), dtype={"label": 'string', "sTtl": "int64", "dTtl": "int64"})
+            _df = pd.read_csv(os.path.join(args.input_path, file), dtype={"label": 'string', "sTtl": "int64", "dTtl": "int64", "Trans": "int64", "SrcTCPBase": "int64", "DstTCPBase": "int64"})
             df = pd.concat([df, _df])
             file_read += 1
             if file_read > MAX_FILE_INPUT:
