@@ -111,8 +111,8 @@ def information_gain():
     print(df_mutual_information)
 
     plt.figure(figsize=(20, 18))
-    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
-    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
+    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
+    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
     # plt.show()
     plt.savefig(os.path.join("filter_output", "infogain_with_corr_feats.png"))
     df_mutual_information.to_csv(os.path.join("filter_output", "infogain_with_corr_feats.csv"))
@@ -125,8 +125,10 @@ def information_gain():
         for col in df_mutual_information.columns:
             if col == "label":
                 continue
+            if row == col:
+                continue
             print("examining row, col:", row, col)
-            if df_mutual_information.loc[row][col] > 0.9: #made up value for correlation
+            if df_mutual_information.loc[row][col] > 0.7: #made up value for correlation
                 #the variable row is correlated with col
                 if df_mutual_information.loc[row]["label"] < df_mutual_information.loc[col]["label"]:
                     # df_mutual_information.drop(row, inplace=True)
@@ -144,8 +146,8 @@ def information_gain():
     # input()
 
     plt.figure(figsize=(20, 18))
-    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
-    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
+    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
+    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
     # plt.show()
     plt.savefig(os.path.join("filter_output", "infogain.png"))
     df_mutual_information.to_csv(os.path.join("filter_output", "infogain.csv"))
