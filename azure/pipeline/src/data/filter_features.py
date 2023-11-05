@@ -126,7 +126,7 @@ def information_gain():
             if col == "label":
                 continue
             print("examining row, col:", row, col)
-            if df_mutual_information.loc[row][col] > args.value:
+            if df_mutual_information.loc[row][col] > 0.9: #made up value for correlation
                 #the variable row is correlated with col
                 if df_mutual_information.loc[row]["label"] < df_mutual_information.loc[col]["label"]:
                     # df_mutual_information.drop(row, inplace=True)

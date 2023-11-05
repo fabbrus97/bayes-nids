@@ -5,11 +5,19 @@ public class Instance
     public string label;
     private int[] base_index { get; set; }
     public bool[] isSparse { get; set;}
+    //not the count of all the features, but just the one with 
+    //values > 0 - since the representation is sparse
     public int featureCount { get; set;}
     public int GetFeatureIndex(int n_feature)
-    {
-        var index = base_index[n_feature];
+    {   
+        //this is the bias
+        if (n_feature == featureCount + 1)
+        {
+            return 1;
+        }
 
+        var index = base_index[n_feature];
+        
         if(!isSparse[n_feature])
             index += 1;
         else
@@ -29,7 +37,7 @@ public class Instance
         this.label = label;
         this.base_index = base_index;
         this.isSparse = is_sparse_bitmask;
-        this.featureCount = values.Count();
+        this.featureCount = values.Count(); //not counting bias
         
     }
 }

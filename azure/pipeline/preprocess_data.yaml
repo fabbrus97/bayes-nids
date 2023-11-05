@@ -1,0 +1,24 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: preprocess_data
+display_name: Preprocess dataset
+version: 4
+
+inputs:
+  component_input_traffic_type:
+    type: string
+  component_input_path:
+    type: uri_folder
+
+outputs:
+  component_output_path:
+    type: uri_folder
+
+code: ./src/data
+
+environment: 
+  image: amancevice/pandas
+
+command: >-
+  python3 preprocess_data.py --input_path ${{inputs.component_input_path}} --output_path ${{outputs.component_output_path}} --nthreads 4 --traffic_type ${{inputs.component_input_traffic_type}}

@@ -230,7 +230,7 @@ class Program
             }
 
             //Get data from all files
-            double[] row_dbl = new double[isSparseBitmask.Length];
+            double[] row_dbl = new double[isSparseBitmask.Length+1];
             // double[] row_dbl = new double[Features.Length - 1];
             
             foreach(string file in train_files)
@@ -246,6 +246,7 @@ class Program
                                 var feature = all_original_features[i];
                                 if (Array.Find(Features, x => x == feature) != null)
                                     row_dbl[Features.FindIndex(x => x == feature)] = Double.Parse(data) + 1;
+                                    row_dbl[isSparseBitmask.Length] = 1; //bias
                             });
                     
                     // row_str.SkipLast(1).ForEach( (int i, string data) => Console.WriteLine(i + " " + data));
