@@ -220,7 +220,7 @@ class Evaluate{
             // double areaUnderRocCurve = evaluator.AreaUnderRocCurve(  
             //     true, TestSet, Label, predictions);
 
-            Console.WriteLine("error count: " +  errorCount);
+            Console.WriteLine("error count: " +  errorCount + " total estimates: " + estimates.Count());
             // Console.WriteLine("error count: " +  errorCount + " area under curve: " + areaUnderRocCurve);
 
 

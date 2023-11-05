@@ -36,8 +36,11 @@ public class Instance
         this.values = values;
         this.label = label;
         this.base_index = base_index;
-        this.isSparse = is_sparse_bitmask;
-        this.featureCount = values.Count()+1; //counting bias
+        // this.isSparse = is_sparse_bitmask;
+        this.isSparse = new bool[is_sparse_bitmask.Length+1];
+        Array.Copy(is_sparse_bitmask, this.isSparse, is_sparse_bitmask.Length);
+        this.isSparse[is_sparse_bitmask.Length] = false; //bias
+        this.featureCount = values.Count(); //counting bias
         
     }
 }
