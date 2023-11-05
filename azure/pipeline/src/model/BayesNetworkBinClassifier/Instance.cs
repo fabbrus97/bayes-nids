@@ -11,7 +11,7 @@ public class Instance
     public int GetFeatureIndex(int n_feature)
     {   
         //this is the bias
-        if (n_feature == featureCount + 1)
+        if (n_feature == featureCount)
         {
             return 1;
         }
@@ -37,7 +37,7 @@ public class Instance
         this.label = label;
         this.base_index = base_index;
         this.isSparse = is_sparse_bitmask;
-        this.featureCount = values.Count(); //not counting bias
+        this.featureCount = values.Count()+1; //counting bias
         
     }
 }
