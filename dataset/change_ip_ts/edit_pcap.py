@@ -20,7 +20,7 @@ available_dates = list(map["dates"].keys())
 
 def get_random_date():
     real_date = random.choice(available_dates)
-    while len(map["dates"][real_date].values()) < 8:
+    while len(map["dates"][real_date].values()) < 3: 
         real_date = random.choice(available_dates)
     available_dates.remove(real_date)
     return real_date
@@ -89,7 +89,7 @@ for root, subdirs, _ in os.walk("attack_pcap"):
                 index += 1
 
             print("FINAL mypcap length:", len(mypcap))
-            wrpcap("test_change_ts.pcap", mypcap)
+            wrpcap(os.path.join(root, subdir, file), mypcap)
 
         subdir_counter += 1       
 
