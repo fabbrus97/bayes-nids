@@ -34,8 +34,8 @@ def producer():
             mutex.acquire()
             QUEUEDONE = True
             mutex.release()
-            for i in range(args.nthreads-1):
-                consumerSem.release()
+            
+            consumerSem.release()
             break
             
         if file is not None:
@@ -51,8 +51,8 @@ def producer():
             input_row_attack_df = pd.concat([input_row_attack_df, df_attack])
             samplemutex.release()
         
-        for i in range(args.nthreads-1):
-            consumerSem.release()
+        
+        consumerSem.release()
             
         samplemutex.acquire()
         print("input_row_df values:", len(input_row_df.index), "input_row_attack_df values:", len(input_row_attack_df.index), "normal files to pop:", len(input_path_queue), "attack files to pop:", len(input_path_attack_queue))
@@ -63,8 +63,8 @@ def producer():
         l2 = len(input_row_attack_df.index)
         samplemutex.release()
         while l1 > LIMIT and l2 > LIMIT:
-            for i in range(args.nthreads-1):
-                consumerSem.release()
+            
+            consumerSem.release()
             producerSem.acquire()
 
             samplemutex.acquire()
@@ -143,11 +143,11 @@ def process_csv():
         for key in sparse_features.keys():
             indexmax[key] = max(df[key])
         
-        varmutex.acquire()
+        
         for key in sparse_features.keys():
             if indexmax[key] > sparse_features[key]:
                 sparse_features[key] = indexmax[key]
-        varmutex.release()
+        
 
         train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"), index=False)
         test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"), index=False)
@@ -163,13 +163,8 @@ if __name__ == "__main__":
     parser.add_argument("--input_path", required=True)
     parser.add_argument("--output_path", required=True)
     parser.add_argument("--fraction", required=True, type=float) #fraction that will go in the test e.g. 0.3 = 70% train, 30% test
-    parser.add_argument("--nthreads", required=False, type=int, default=2)
 
     args = parser.parse_args()
-
-    if args.nthreads < 2:
-        print("At least 2 threads needed")
-        exit(1)
 
     input_path_queue = []
     input_path_attack_queue = []
@@ -188,9 +183,9 @@ if __name__ == "__main__":
 
 
     mutex = threading.Lock()
-    varmutex = threading.Lock()
+    
     producerSem = threading.Semaphore(0)
-    consumerSem = threading.Semaphore(args.nthreads-1)
+    consumerSem = threading.Semaphore(0)
     samplemutex = threading.Lock()
     for file in os.listdir(args.input_path):
         if file.endswith(".csv"):
@@ -203,13 +198,12 @@ if __name__ == "__main__":
     random.shuffle(input_path_attack_queue)
 
 
-    threads = [threading.Thread(target=process_csv) for i in range(args.nthreads - 1)]
-    threads.append(threading.Thread(target=producer))
+    threads = [threading.Thread(target=process_csv), threading.Thread(target=producer)]
     
-    for i in range(args.nthreads):
+    for i in range(2):
         threads[i].start()
     
-    for i in range(args.nthreads):
+    for i in range(2):
         threads[i].join()
         
     
