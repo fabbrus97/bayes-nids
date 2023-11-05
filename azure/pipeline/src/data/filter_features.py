@@ -130,11 +130,14 @@ def information_gain():
             print("examining row, col:", row, col)
             if df_mutual_information.loc[row][col] > 0.7: #made up value for correlation
                 #the variable row is correlated with col
+                print("they are correlated! value:", df_mutual_information.loc[row][col] > 0.7)
                 if df_mutual_information.loc[row]["label"] < df_mutual_information.loc[col]["label"]:
+                    print(row, "is the least correlated with label:", df_mutual_information.loc[row]["label"], "vs", df_mutual_information.loc[col]["label"])
                     # df_mutual_information.drop(row, inplace=True)
                     rows2delete.add(row)
                 else:
                     # df_mutual_information.drop(col, inplace=True)
+                    print(row, "is the least correlated with label:", df_mutual_information.loc[row]["label"], "vs", df_mutual_information.loc[col]["label"])
                     rows2delete.add(col)
 
     print("rows2delete:", rows2delete)
