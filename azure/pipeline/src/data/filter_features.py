@@ -57,7 +57,12 @@ def infogain_thread(df, columns):
             mi = 0
         else:
             mi = mutual_info_classif(df, df[col], random_state=42, discrete_features=discrete_feature_bitmask)
-        df_mutual_information[col] = mi
+        try:
+            df_mutual_information[col] = mi
+        except Exception as e:
+            print(e)
+            print("the offending vector is:")
+            print(mi)
         counter += 1
 
 def information_gain():
@@ -69,7 +74,7 @@ def information_gain():
         df, df['label'], random_state=42)
 
     cols_per_thread = int(len(X.columns)/args.nthreads) + 1
-
+    
     if args.nthreads > 1:
         df_mutual_information = pd.DataFrame(columns=[df.columns], index=[df.columns])
         # print("My index are:", df_mutual_information.index)
@@ -90,6 +95,8 @@ def information_gain():
         # print(mi)
         # df_mi[col] = mi
     df_mutual_information = (df_mutual_information-df_mutual_information.min())/(df_mutual_information.max()-df_mutual_information.min())
+    
+
     # print(df_mutual_information)
     for col in df_mutual_information.columns:
         print(col)
@@ -109,35 +116,41 @@ def information_gain():
             # continue
 
     print(df_mutual_information)
+    
 
     plt.figure(figsize=(20, 18))
     # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
     sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
     # plt.show()
     plt.savefig(os.path.join("filter_output", "infogain_with_corr_feats.png"))
-    df_mutual_information.to_csv(os.path.join("filter_output", "infogain_with_corr_feats.csv"))
-
+    df_mutual_information.to_csv(os.path.join("filter_output", "infogain_with_corr_feats.csv")) #TODO
+   
     #remove mutual correlated features
     rows2delete = set()
-    for row in df_mutual_information.index:
-        if col == "label":
+    for row in df_mutual_information.index.to_list():
+        if row == "label":
             continue
-        for col in df_mutual_information.columns:
-            if col == "label":
+        for col in df_mutual_information.columns.to_list():
+            
+            print("examining row, col:", row, col)
+            
+            if col == df_mutual_information.columns[-1]: #"label":
+                print("label col found, skipping")
                 continue
             if row == col:
+                print("row==col, skipping")
                 continue
-            print("examining row, col:", row, col)
-            if df_mutual_information.loc[row][col] > 0.7: #made up value for correlation
+
+            if df_mutual_information.loc[row][col] > 0.7: #made up value for correlation 
                 #the variable row is correlated with col
-                print("they are correlated! value:", df_mutual_information.loc[row][col] > 0.7)
+                print("they are correlated! value:", df_mutual_information.loc[row][col])
                 if df_mutual_information.loc[row]["label"] < df_mutual_information.loc[col]["label"]:
                     print(row, "is the least correlated with label:", df_mutual_information.loc[row]["label"], "vs", df_mutual_information.loc[col]["label"])
                     # df_mutual_information.drop(row, inplace=True)
                     rows2delete.add(row)
                 else:
                     # df_mutual_information.drop(col, inplace=True)
-                    print(row, "is the least correlated with label:", df_mutual_information.loc[row]["label"], "vs", df_mutual_information.loc[col]["label"])
+                    print(col, "is the least correlated with label:", df_mutual_information.loc[col]["label"], "vs", df_mutual_information.loc[row]["label"])
                     rows2delete.add(col)
 
     print("rows2delete:", rows2delete)
