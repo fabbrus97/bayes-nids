@@ -13,6 +13,7 @@ public class Instance
         //this is the bias
         if (n_feature == featureCount)
         {
+            Console.WriteLine("GetFeatureIndex -> 1");
             return 1;
         }
 
@@ -23,7 +24,7 @@ public class Instance
         else
             index += (int)values[n_feature];
         
-        
+        Console.WriteLine("GetFeatureIndex -> " + index);
         return index;
     }
     /*

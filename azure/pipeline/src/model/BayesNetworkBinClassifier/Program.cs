@@ -69,6 +69,7 @@ class Program
         double[] row_dbl = new double[isSparseBitmask.Length];
         // double[] row_dbl = new double[Features.Length - 1];
         
+        Console.WriteLine("Opening test set files...");
         foreach(string file in train_files)
         {
             lines = File.ReadAllLines(file);
@@ -100,7 +101,8 @@ class Program
             int,   
             List<string>,   
             bool>(evaluatorMapping);
-        
+
+        Console.WriteLine("Start predict distribution");
         var predictions = classifier.PredictDistribution(TestSet);  
         IEnumerable<bool> estimates = classifier.Predict(TestSet);  
 
@@ -232,6 +234,7 @@ class Program
             //Get data from all files
             double[] row_dbl = new double[Features.Length];
             
+            Console.WriteLine("Opening files...");
             foreach(string file in train_files)
             {
                 lines = File.ReadAllLines(file);
@@ -261,11 +264,13 @@ class Program
             // Create the Bayes Point Machine classifier from the mapping  
             var mapping = new DataMapping(cumulative+1);  
             var classifier = BayesPointMachineClassifier.CreateBinaryClassifier(mapping);
+            Console.WriteLine("Training classifier");
             classifier.Train(Data, Label);
             classifier.Save("bpm.bin");
             //TODO save model
             //TODO create evaluator, that will 1. load the model 2. load data 3. actual evaluation
 
+            Console.WriteLine("Evaluating classifier");
             Evaluate(mapping, classifier);
 
 
