@@ -125,8 +125,8 @@ def process_csv():
         mutex.release()
         
         test_normal_sample = get_sample(args.fraction, True)
-        test_attack_sample = get_sample(args.fraction, True)
-        train_normal_sample = get_sample(1-args.fraction, False)
+        test_attack_sample = get_sample(args.fraction, False)
+        train_normal_sample = get_sample(1-args.fraction, True)
         train_attack_sample = get_sample(1-args.fraction, False)
 
         if test_normal_sample.empty or test_attack_sample.empty \
@@ -139,14 +139,19 @@ def process_csv():
         df = pd.DataFrame()
         df = pd.concat([train, test])
 
-        indexmax = {}
+        local_indexmax = {}
+        local_indexmin = {}
         for key in sparse_features.keys():
-            indexmax[key] = max(df[key])
-        
+            local_indexmax[key] = max(df[key])
+            local_indexmin[key] = min(df[key])
         
         for key in sparse_features.keys():
-            if indexmax[key] > sparse_features[key]:
-                sparse_features[key] = indexmax[key]
+            if local_indexmax[key] > sparse_features[key]["max"]:
+                sparse_features[key]["max"] = local_indexmax[key]
+            if local_indexmin[key] < sparse_features[key]["min"]:
+                print("Found index", local_indexmin[key], "lesser than", sparse_features[key]["min"], "for sparse feature", key)
+                sparse_features[key]["min"] = local_indexmin[key]
+            
         
 
         train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"), index=False)
@@ -172,13 +177,13 @@ if __name__ == "__main__":
     input_row_attack_df = pd.DataFrame()
     counter = 0
     sparse_features = {
-        "SrcAddr": 0,
-        "DstAddr": 0,
-        "Sport": 0,
-        "Dport": 0,
-        "Proto": 0,
-        "State": 0,
-        "proto_state_and": 0
+        "SrcAddr": {"max": 0, "min": 65000},
+        "DstAddr": {"max": 0, "min": 65000},
+        "Sport": {"max": 0, "min": 65000},
+        "Dport": {"max": 0, "min": 65000},
+        "Proto": {"max": 0, "min": 65000},
+        "State": {"max": 0, "min": 65000},
+        "proto_state_and": {"max": 0, "min": 65000}
     }
 
 

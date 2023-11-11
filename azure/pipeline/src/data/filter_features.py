@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import mutual_info_classif
+from sklearn import preprocessing
 # from sklearn.linear_model import Ridge
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.inspection import permutation_importance
@@ -9,6 +10,9 @@ import os
 from matplotlib import pyplot as plt
 import seaborn as sns
 import threading
+import numpy as np
+from scipy.cluster import hierarchy
+from scipy.spatial.distance import squareform
 
 MAX_FILE_INPUT = 20
 
@@ -60,7 +64,10 @@ def infogain_thread(df, columns):
     for col in columns:
         print("infogain_thread: computing for column", col, "of type", df[col].dtype, f"({counter}/{maxfeatures})")
         if df[col].dtype == "float64":
-            mi = 0
+            # NOTE a logistic regression model requires the values of the response variable to be categorical
+            lab = preprocessing.LabelEncoder()
+            y_transformed = lab.fit_transform(df[col])
+            mi = mutual_info_classif(df, y_transformed, random_state=42, discrete_features=discrete_feature_bitmask)
         else:
             mi = mutual_info_classif(df, df[col], random_state=42, discrete_features=discrete_feature_bitmask)
         try:
@@ -101,7 +108,16 @@ def information_gain():
         # print(mi)
         # df_mi[col] = mi
     df_mutual_information = (df_mutual_information-df_mutual_information.min())/(df_mutual_information.max()-df_mutual_information.min())
-    
+
+    plt.figure(figsize=(20, 18))
+    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
+    plt.show()
+
+
+    # We convert the correlation matrix to a distance matrix before performing
+    # hierarchical clustering using Ward's linkage.
+    distance_matrix = 1 - np.abs(df_mutual_information)
+    dist_linkage = hierarchy.ward(squareform(distance_matrix))    
 
     # print(df_mutual_information)
     for col in df_mutual_information.columns:
@@ -172,7 +188,7 @@ def information_gain():
     sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
     # plt.show()
     plt.savefig(os.path.join("filter_output", "infogain.png"))
-    df_mutual_information.to_csv(os.path.join("filter_output", "infogain.csv"))
+    df_mutual_information.to_csv(os.path.join("filter_output", "infogain.csv")) #TODO make folder filter_output
     feature_list_file = open(os.path.join("filter_output", "feature_list.txt"), "w")
     feature_list_file.write(",".join([i[0] for i in df_mutual_information.index.values.tolist()]) + "\n")
     return df_mutual_information.index

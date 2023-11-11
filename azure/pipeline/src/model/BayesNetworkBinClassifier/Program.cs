@@ -15,7 +15,7 @@ class Program
     public static string? OutputFolder { get; set; }
     public static int? Batch { get; set; }
 
-    private static string[]? Features { get; set; }
+    public static string[]? Features { get; set; }
     private static List<Instance> Data = new List<Instance>();
     private static int[] BaseIndexes; 
     
@@ -72,6 +72,7 @@ class Program
         Console.WriteLine("Opening test set files...");
         foreach(string file in train_files)
         {
+            Console.WriteLine("Opening test file " + file);
             lines = File.ReadAllLines(file);
 
             foreach(string line in lines.Skip(1))
@@ -105,9 +106,22 @@ class Program
         Console.WriteLine("Start predict distribution");
         var predictions = classifier.PredictDistribution(TestSet);  
         IEnumerable<bool> estimates = classifier.Predict(TestSet);  
-
-        double errorCount = evaluator.Evaluate(  
-            TestSet, Label, estimates, Metrics.ZeroOneError);  
+        
+        int errorCount = 0;
+        
+        int i = 0;
+        foreach(bool estimate in estimates)
+        {
+            // Console.WriteLine( i + "/" + estimates.Count() + " Estimate: " + estimate + " Label: " + Label[i]);    
+            if (estimate == true && Label[i] != "normal" )
+                errorCount++;
+            if (estimate == false && Label[i] == "normal" )
+                errorCount++;
+            i++;
+        }
+        // Label.ForEach( x => BoolLabel.Add( x == "normal" ));
+        // double errorCount = evaluator.Evaluate(  
+        //     TestSet, BoolLabel, estimates, Metrics.ZeroOneError);  
 
         // double areaUnderRocCurve = evaluator.AreaUnderRocCurve(  
         //     true, TestSet, Label, predictions);
@@ -176,7 +190,7 @@ class Program
             string jsonFile = Directory.GetFiles(SourceFolder, "sparse_features_max_index.json")[0];
             string[] jsonLines = File.ReadAllLines(jsonFile);
             string jsonString = string.Join(string.Empty, jsonLines);
-            var sparseFeatureIndex = JsonSerializer.Deserialize<Dictionary<string, int>>(jsonString);
+            var sparseFeatureIndex = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(jsonString);
             
             //Second, the features we actually need (from filter_features.py)
             Features = new string[0];
@@ -218,8 +232,8 @@ class Program
             var cumulative = 0;
             for(int i = 0; i < Features.Length; i++)
             {
-                if (Features[i] == "label")
-                    continue;
+                // if (Features[i] == "label")
+                //     continue;
                 BaseIndexes[i] = cumulative;
                 if (!isSparseBitmask[i])
                 {
@@ -227,7 +241,7 @@ class Program
                 }
                 else
                 {
-                    cumulative += sparseFeatureIndex[Features[i]];
+                    cumulative += sparseFeatureIndex[Features[i]]["max"] + 1;
                 }
             }
 
@@ -237,6 +251,8 @@ class Program
             Console.WriteLine("Opening files...");
             foreach(string file in train_files)
             {
+                Console.WriteLine("Opening train file " + file);
+
                 lines = File.ReadAllLines(file);
 
                 foreach(string line in lines.Skip(1))
