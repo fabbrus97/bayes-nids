@@ -12,7 +12,7 @@ import seaborn as sns
 import threading
 import numpy as np
 from scipy.cluster import hierarchy
-from scipy.spatial.distance import squareform
+from collections import defaultdict
 
 MAX_FILE_INPUT = 20
 
@@ -43,20 +43,15 @@ def permutation_feature_importance(dist_linkage):
     
 
     X_train_sel = X_train[selected_features_names]
-    X_test_sel = X_val[selected_features_names]
+    X_val_sel = X_val[selected_features_names]
 
-    model = BernoulliNB().fit(X_train, y_train)
+    model = BernoulliNB()
     model.fit(X_train_sel, y_train)
     
     print(
         "Baseline accuracy on test data with features removed:"
-        f" {model.score(X_test_sel, y_val):.2}"
+        f" {model.score(X_val_sel, y_val):.2}"
     )
-
-
-
-
-
 
     # print("pfi: training model")
     # X_train, X_val, y_train, y_val = train_test_split(
@@ -73,20 +68,27 @@ def permutation_feature_importance(dist_linkage):
     # score = model.score(X_val, y_val)
     # print("Model score:", score)
 
-    r = permutation_importance(model, X_val, y_val,
+    r = permutation_importance(model, X_val_sel, y_val,
                                n_repeats=30,
                                random_state=0)
     print("done, output...")
     
     # print(r)
     
+    final_features = []
+
     for i in r.importances_mean.argsort()[::-1]:
         if r.importances_mean[i] - 2 * r.importances_std[i] > 0:
+            final_features.append(df.columns[i].name)
+
             print(f"{df.columns[i]:<8}"
                   f"{r.importances_mean[i]:.3f}"
                   f" +/- {r.importances_std[i]:.3f}")
     
-    #TODO write output to csv
+    filter_features = open(os.join.path(args.output_path, "feature_list.txt"), "w")
+    for ft in final_features:
+        filter_features.write(f"{ft}\n")
+    filter_features.close()
 
 def infogain_thread(df, columns):
     counter = 1
