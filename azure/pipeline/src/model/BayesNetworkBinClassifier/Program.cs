@@ -200,9 +200,9 @@ class Program
             
             //Second, the features we actually need (from filter_features.py)
             Features = new string[0];
-            if (Directory.Exists("/home/simone/demo_tesi/filter_output")) //TODO
+            if (File.Exists(Path.Join(OutputFolder, "feature_list.txt"))) 
             {
-                var feat_filt_file = Directory.GetFiles("/home/simone/demo_tesi/filter_output", "feature_list.txt");
+                var feat_filt_file = Directory.GetFiles(Path.Join(OutputFolder, "feature_list.txt")));
                 Features = File.ReadAllLines(feat_filt_file[0])[0].Split(",");
                 Console.WriteLine($"Using only the following {Features.Length} features:");
                 foreach(string feature in Features)
