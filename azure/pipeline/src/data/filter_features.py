@@ -140,11 +140,6 @@ def information_gain():
         # df_mi[col] = mi
     df_mutual_information = (df_mutual_information-df_mutual_information.min())/(df_mutual_information.max()-df_mutual_information.min())
 
-    plt.figure(figsize=(20, 18))
-    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
-    plt.show()
-
-
     # We convert the correlation matrix to a distance matrix before performing
     # hierarchical clustering using Ward's linkage.
     distance_matrix = 1 - np.abs(df_mutual_information)
