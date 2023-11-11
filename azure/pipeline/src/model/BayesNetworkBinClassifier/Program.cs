@@ -96,7 +96,8 @@ class Program
             }
         }
 
-        var evaluatorMapping = mapping.ForEvaluation();  
+        // var evaluatorMapping = mapping.ForEvaluation();  
+        var evaluatorMapping = new EvaluatorMapping();
         var evaluator = new ClassifierEvaluator  
             <List<Instance>,   
             int,   
@@ -104,24 +105,29 @@ class Program
             bool>(evaluatorMapping);
 
         Console.WriteLine("Start predict distribution");
-        var predictions = classifier.PredictDistribution(TestSet);  
-        IEnumerable<bool> estimates = classifier.Predict(TestSet);  
         
-        int errorCount = 0;
+        var savedclassifier = BayesPointMachineClassifier.LoadBinaryClassifier  
+            <List<Instance>, int, List<string>, bool, Bernoulli>("bpm.bin");
+
+        // var predictions = classifier.PredictDistribution(TestSet);  
+        var predictions = savedclassifier.PredictDistribution(TestSet);  
+        IEnumerable<bool> estimates = savedclassifier.Predict(TestSet);  
+        // IEnumerable<bool> estimates = classifier.Predict(TestSet);  
         
-        int i = 0;
-        foreach(bool estimate in estimates)
-        {
-            // Console.WriteLine( i + "/" + estimates.Count() + " Estimate: " + estimate + " Label: " + Label[i]);    
-            if (estimate == true && Label[i] != "normal" )
-                errorCount++;
-            if (estimate == false && Label[i] == "normal" )
-                errorCount++;
-            i++;
-        }
+        // int errorCount = 0;
+        // int i = 0;
+        // foreach(bool estimate in estimates)
+        // {
+        //     // Console.WriteLine( i + "/" + estimates.Count() + " Estimate: " + estimate + " Label: " + Label[i]);    
+        //     if (estimate == true && Label[i] != "normal" )
+        //         errorCount++;
+        //     if (estimate == false && Label[i] == "normal" )
+        //         errorCount++;
+        //     i++;
+        // }
         // Label.ForEach( x => BoolLabel.Add( x == "normal" ));
-        // double errorCount = evaluator.Evaluate(  
-        //     TestSet, BoolLabel, estimates, Metrics.ZeroOneError);  
+        double errorCount = evaluator.Evaluate(  
+            TestSet, Label, estimates, Metrics.ZeroOneError);  
 
         // double areaUnderRocCurve = evaluator.AreaUnderRocCurve(  
         //     true, TestSet, Label, predictions);
@@ -283,8 +289,6 @@ class Program
             Console.WriteLine("Training classifier");
             classifier.Train(Data, Label);
             classifier.Save("bpm.bin");
-            //TODO save model
-            //TODO create evaluator, that will 1. load the model 2. load data 3. actual evaluation
 
             Console.WriteLine("Evaluating classifier");
             Evaluate(mapping, classifier);

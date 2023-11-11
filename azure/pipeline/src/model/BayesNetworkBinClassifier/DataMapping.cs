@@ -166,10 +166,6 @@ public class DataMapping:
         return true;
     }
 
-    public EvaluatorMapping ForEvaluation()
-    {
-        return new EvaluatorMapping();
-    }
 }
 
 public class EvaluatorMapping:

@@ -16,7 +16,7 @@ from scipy.spatial.distance import squareform
 
 MAX_FILE_INPUT = 20
 
-def permutation_feature_importance(features):
+def permutation_feature_importance(dist_linkage):
     global df
     
     """
@@ -27,20 +27,51 @@ def permutation_feature_importance(features):
             df.drop(columns=col, inplace=True)    
     """
 
-    print("pfi: training model")
+    cluster_ids = hierarchy.fcluster(dist_linkage, 1, criterion="distance")
+    cluster_id_to_feature_ids = defaultdict(list)
+    for idx, cluster_id in enumerate(cluster_ids):
+        cluster_id_to_feature_ids[cluster_id].append(idx)
+    selected_features = [v[0] for v in cluster_id_to_feature_ids.values()]
+    selected_features_names = df.columns[selected_features]
+
     X_train, X_val, y_train, y_val = train_test_split(
         df, df['label'], random_state=42, test_size=0.3)
         #df, test_size=0.2, random_state=42, shuffle=True)
     
     X_train.drop("label", inplace=True, axis=1)
     X_val.drop("label", inplace=True, axis=1)
-    print(X_train)
+    
 
-    # model = Ridge(alpha=1e-2).fit(X_train, y_train)
+    X_train_sel = X_train[selected_features_names]
+    X_test_sel = X_val[selected_features_names]
+
     model = BernoulliNB().fit(X_train, y_train)
-    print("computing scores")
-    score = model.score(X_val, y_val)
-    print("Model score:", score)
+    model.fit(X_train_sel, y_train)
+    
+    print(
+        "Baseline accuracy on test data with features removed:"
+        f" {model.score(X_test_sel, y_val):.2}"
+    )
+
+
+
+
+
+
+    # print("pfi: training model")
+    # X_train, X_val, y_train, y_val = train_test_split(
+    #     df, df['label'], random_state=42, test_size=0.3)
+    #     #df, test_size=0.2, random_state=42, shuffle=True)
+    
+    # X_train.drop("label", inplace=True, axis=1)
+    # X_val.drop("label", inplace=True, axis=1)
+    # print(X_train)
+
+    # # model = Ridge(alpha=1e-2).fit(X_train, y_train)
+    # model = BernoulliNB().fit(X_train, y_train)
+    # print("computing scores")
+    # score = model.score(X_val, y_val)
+    # print("Model score:", score)
 
     r = permutation_importance(model, X_val, y_val,
                                n_repeats=30,
@@ -117,7 +148,9 @@ def information_gain():
     # We convert the correlation matrix to a distance matrix before performing
     # hierarchical clustering using Ward's linkage.
     distance_matrix = 1 - np.abs(df_mutual_information)
-    dist_linkage = hierarchy.ward(squareform(distance_matrix))    
+    dist_linkage = hierarchy.ward(distance_matrix)    
+    return dist_linkage #TODO
+    # dist_linkage = hierarchy.ward(squareform(distance_matrix))    
 
     # print(df_mutual_information)
     for col in df_mutual_information.columns:

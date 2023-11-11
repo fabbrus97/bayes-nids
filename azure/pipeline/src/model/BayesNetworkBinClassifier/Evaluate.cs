@@ -195,7 +195,7 @@ class Evaluate{
             Discrete
             >("bpm.bin");
 
-            var evaluatorMapping = mapping.ForEvaluation();  
+            var evaluatorMapping = new EvaluatorMapping();  
             var evaluator = new ClassifierEvaluator  
                 <List<Instance>,   
                 int,   
