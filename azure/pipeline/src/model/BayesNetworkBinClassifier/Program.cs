@@ -202,8 +202,8 @@ class Program
             Features = new string[0];
             if (File.Exists(Path.Join(OutputFolder, "feature_list.txt"))) 
             {
-                var feat_filt_file = Directory.GetFiles(Path.Join(OutputFolder, "feature_list.txt")));
-                Features = File.ReadAllLines(feat_filt_file[0])[0].Split(",");
+                var feat_filt_file = Directory.GetFiles(OutputFolder, "feature_list.txt")[0];
+                Features = File.ReadAllLines(feat_filt_file)[0].Split(",");
                 Console.WriteLine($"Using only the following {Features.Length} features:");
                 foreach(string feature in Features)
                 {

@@ -79,13 +79,13 @@ def permutation_feature_importance(dist_linkage):
 
     for i in r.importances_mean.argsort()[::-1]:
         if r.importances_mean[i] - 2 * r.importances_std[i] > 0:
-            final_features.append(df.columns[i].name)
+            final_features.append(df.columns[i])
 
             print(f"{df.columns[i]:<8}"
                   f"{r.importances_mean[i]:.3f}"
                   f" +/- {r.importances_std[i]:.3f}")
     
-    filter_features = open(os.join.path(args.output_path, "feature_list.txt"), "w")
+    filter_features = open(os.path.join(args.output_path, "feature_list.txt"), "w")
     for ft in final_features:
         filter_features.write(f"{ft}\n")
     filter_features.close()
@@ -251,7 +251,8 @@ if __name__ == "__main__":
                 break
     # print(df["label"].value_counts())
     # input()
-
+    
+    print(df)
     df['label'], _ = pd.factorize(df['label'])
 
 
