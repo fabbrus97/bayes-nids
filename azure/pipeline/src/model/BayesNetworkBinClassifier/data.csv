@@ -1,4 +1,0 @@
-SrcAddr,Sport,DstAddr,Dport,Proto,State,Dur,SrcBytes,DstBytes,sTtl,dTtl,SrcLoss,DstLoss,SrcLoad,DstLoad,SrcPkts,DstPkts,SrcWin,DstWin,SrcTCPBase,DstTCPBase,sMeanPktSz,dMeanPktSz,SrcJitter,DstJitter,StartTime,LastTime,SIntPkt,DIntPkt,TcpRtt,SynAck,AckDat,Trans,Min,Max,Sum,is_sm_ips_ports,ct_state_ttl,ct_flw_http_mthd,is_ftp_login,ct_ftp_login,ct_srv_src,ct_srv_dst,ct_dst_ltm,ct_src_ltm,ct_src_dport_ltm,ct_dst_sport_ltm,ct_dst_src_ltm,is_telnet_login,label
-0,0,0,0,0,0,0.0,1,0,64.0,0.0,0,0,0,0,1,0,0.0,0.0,0.0,0.0,466.0,0.0,0,0,1608652803.559267,1608652803.559267,0,0,0,0,0,1.0,0.0,0.0,0.0,2,1,0,0,0,1,1,1,1,1,1,1,0,normal
-0,1,1,1,0,0,0.0,1,0,64.0,0.0,0,0,0,0,1,0,0.0,0.0,0.0,0.0,466.0,0.0,0,0,1608652814.267526,1608652814.267526,0,0,0,0,0,1.0,0.0,0.0,0.0,2,2,0,0,0,2,1,1,2,1,1,1,0,normal
-0,2,0,0,0,0,0.0,1,0,64.0,0.0,0,0,0,0,1,0,0.0,0.0,0.0,0.0,466.0,0.0,0,0,1608652845.151358,1608652845.151358,0,0,0,0,0,1.0,0.0,0.0,0.0,2,3,0,0,0,3,2,2,3,2,1,2,0,normal

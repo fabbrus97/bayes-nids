@@ -14,14 +14,15 @@ class Program
     public static string? SourceFolder { get; set; }
     public static string? OutputFolder { get; set; }
     public static int? Batch { get; set; }
-
+    public static string[] AllOriginalFeatures { get; set; }
     public static string[]? Features { get; set; }
-    private static List<Instance> Data = new List<Instance>();
-    private static int[] BaseIndexes; 
+    public static List<Instance> Data = new List<Instance>();
+    public static int[] BaseIndexes; 
+    public static string Mode = "inference";
     
-    private static List<string> Label = new List<string>();
+    public static List<string> Label = new List<string>();
 
-    static List<bool> GenerateIsSparseBitMask(string[] features)
+    public static List<bool> GenerateIsSparseBitMask(string[] features)
     {
         List<bool> bitmask = new List<bool>();
         foreach (string ft in features)
@@ -47,6 +48,7 @@ class Program
         
     }
 
+    /*
     static void Evaluate(DataMapping mapping, IBayesPointMachineClassifier<
                     List<Instance>,
                     int, 
@@ -109,41 +111,137 @@ class Program
         var savedclassifier = BayesPointMachineClassifier.LoadBinaryClassifier  
             <List<Instance>, int, List<string>, bool, Bernoulli>("bpm.bin");
 
-        // var predictions = classifier.PredictDistribution(TestSet);  
         var predictions = savedclassifier.PredictDistribution(TestSet);  
-        IEnumerable<bool> estimates = savedclassifier.Predict(TestSet);  
-        // IEnumerable<bool> estimates = classifier.Predict(TestSet);  
+        var estimates = savedclassifier.Predict(TestSet);  
         
-        // int errorCount = 0;
-        // int i = 0;
-        // foreach(bool estimate in estimates)
-        // {
-        //     // Console.WriteLine( i + "/" + estimates.Count() + " Estimate: " + estimate + " Label: " + Label[i]);    
-        //     if (estimate == true && Label[i] != "normal" )
-        //         errorCount++;
-        //     if (estimate == false && Label[i] == "normal" )
-        //         errorCount++;
-        //     i++;
-        // }
-        // Label.ForEach( x => BoolLabel.Add( x == "normal" ));
+        //All errors
         double errorCount = evaluator.Evaluate(  
             TestSet, Label, estimates, Metrics.ZeroOneError);  
 
-        // double areaUnderRocCurve = evaluator.AreaUnderRocCurve(  
-        //     true, TestSet, Label, predictions);
 
-        Console.WriteLine("error count: " +  errorCount + " total estimates: " + estimates.Count());
-        // Console.WriteLine("error count: " +  errorCount + " area under curve: " + areaUnderRocCurve);
+        var predictionsDictionary = new List<Dictionary<bool, double>>();
+        predictions.ForEach( p => 
+                {   
+                    var dict = new Dictionary<bool, double>();
+                    dict.Add(true,  p.GetProbTrue());
+                    dict.Add(false, p.GetProbFalse());
+                    predictionsDictionary.Add(dict);
+                }
+        );
 
+        var options = new JsonSerializerOptions
+            {
+                IncludeFields = true,
+            };
+        
+
+        var confusionMatrix = evaluator.ConfusionMatrix(TestSet, estimates);  
+        var jsonString = JsonSerializer.Serialize(confusionMatrix, options);
+        File.WriteAllText(Path.Join(OutputFolder, "confusionMatrix.json"), jsonString);
+
+        var precisionTrue = confusionMatrix.Precision(true);
+        var precisionFalse = confusionMatrix.Precision(false);
+        var accuracyTrue = confusionMatrix.Accuracy(true);
+        var accuracyFalse = confusionMatrix.Accuracy(false);
+        var recallTrue = confusionMatrix.Recall(true);
+        var recallFalse = confusionMatrix.Recall(false);
+
+        int falsePositive = 0;
+        int falseNegative = 0;
+        for (int i = 0; i < TestSet.Count(); i++)
+        {
+            if (TestSet[i].label == "normal" && !estimates[i]) //we predicted attack, but it is not
+            {
+                    falseNegative++; 
+            }
+            if (TestSet[i].label == "attack" && estimates[i]) //we predicted normal, but it is an attack
+            {
+                    falsePositive++; 
+            }
+        }
+
+        var rocCurve = evaluator.ReceiverOperatingCharacteristicCurve(  
+            true, TestSet, predictionsDictionary);  
+
+        var precisionRecallCurve = evaluator.PrecisionRecallCurve(  
+            true, TestSet, predictionsDictionary);  
+
+        var calibrationCurve = evaluator.CalibrationCurve(  
+            true, TestSet, predictionsDictionary);
+
+        var auc = evaluator.AreaUnderRocCurve(  
+            true, TestSet, predictionsDictionary);
+
+        Console.WriteLine("Total estimates: " + estimates.Count() + " error count: " +  errorCount + " area under curve: " + auc);
+
+        jsonString = JsonSerializer.Serialize(rocCurve, options);
+        File.WriteAllText(Path.Join(OutputFolder, "rocCurve.json"), jsonString);
+        jsonString = JsonSerializer.Serialize(precisionRecallCurve, options);
+        File.WriteAllText(Path.Join(OutputFolder, "precisionRecallCurve.json"), jsonString);
+        jsonString = JsonSerializer.Serialize(calibrationCurve, options);
+        File.WriteAllText(Path.Join(OutputFolder, "calibrationCurve.json"), jsonString);
+
+        
+
+    }
+    */
+    static void Run()
+    {
+        
+        string[] train_files = Directory.GetFiles(SourceFolder, "train*.csv");
+
+        var isSparseBitmask = GenerateIsSparseBitMask(Features).ToArray();
+
+        //Get data from all files
+        double[] row_dbl = new double[Features.Length];
+        
+        
+        Console.WriteLine("Opening files...");
+        foreach(string file in train_files)
+        {
+            Console.WriteLine("Opening train file " + file);
+
+            var lines = File.ReadAllLines(file);
+
+            foreach(string line in lines.Skip(1))
+            {
+                List<string> row_str = new List<string>(line.Split(","));
+                // features_to_skip
+                row_str.SkipLast(1).ForEach( (int i, string data) => 
+                        {
+                            var feature = AllOriginalFeatures[i];
+                            if (Array.Find(Features, x => x == feature) != null)
+                                row_dbl[Features.FindIndex(x => x == feature)] = Double.Parse(data) + 1;
+                        });
+                
+                // row_str.SkipLast(1).ForEach( (int i, string data) => Console.WriteLine(i + " " + data));
+
+                
+                Instance inst = new Instance(row_dbl, BaseIndexes, isSparseBitmask, row_str.Last());
+                Data.Add(inst);
+                // Get label at the end of the row
+                Label.Add(row_str.Last());
+            }
+        }
+
+        //Training the classifier
+        // Create the Bayes Point Machine classifier from the mapping  
+        var mapping = new DataMapping(BaseIndexes[BaseIndexes.Length-1]+2);  
+        // var mapping = new DataMapping(BaseIndexes[BaseIndexes.Length-1]+1);  
+        var classifier = BayesPointMachineClassifier.CreateBinaryClassifier(mapping);
+        Console.WriteLine("Training classifier");
+        classifier.Train(Data, Label);
+        classifier.Save(Path.Join(SourceFolder, "bpm.bin"));
+        Console.WriteLine("Done");
 
     }
 
     static void Main(string[] args)
     {
         //Parsing program arguments
-        string usageMessage = "Usage: dotnet run -s source_folder -o output_folder [-b batch]";
+        string usageMessage = "Usage: dotnet run -s source_folder -o output_folder [-b batch] [-m inference|evaluate|both]";
         
-        if (args.Length != 4 && args.Length != 6)
+        if (args.Length != 4 && args.Length != 6 && args.Length != 8)
         {
             Console.WriteLine("Wrong number of args! " + args.Length + " used");
             foreach(string arg in args)
@@ -170,6 +268,17 @@ class Program
                     case "-b":
                         Batch =  Int32.Parse(args[++i]);
                         break;
+                    case "-m":
+                        i += 1;
+                        if (args[i] != "inference" && args[i] != "evaluate" && args[i] != "both")
+                        {
+                            Console.WriteLine($"Argument {args[i]} error!");
+                            Console.WriteLine(usageMessage);
+                            Environment.Exit(1);
+                            break;
+                        }
+                        Mode = args[i];
+                        break;
 
                     default:
                         Console.WriteLine($"Argument {args[i]} error!");
@@ -186,8 +295,6 @@ class Program
                 Environment.Exit(1);
             }
         }
-        //Ok, loading data
-        
         
         if (Directory.Exists(SourceFolder))
         {
@@ -200,9 +307,9 @@ class Program
             
             //Second, the features we actually need (from filter_features.py)
             Features = new string[0];
-            if (File.Exists(Path.Join(OutputFolder, "feature_list.txt"))) 
+            if (File.Exists(Path.Join(SourceFolder, "feature_list.txt"))) 
             {
-                var feat_filt_file = Directory.GetFiles(OutputFolder, "feature_list.txt")[0];
+                var feat_filt_file = Directory.GetFiles(SourceFolder, "feature_list.txt")[0];
                 Features = File.ReadAllLines(feat_filt_file)[0].Split(",");
                 Console.WriteLine($"Using only the following {Features.Length} features:");
                 foreach(string feature in Features)
@@ -216,16 +323,19 @@ class Program
             {
                 Console.WriteLine("WARNING: filter_output folder not found, consider using filter_features.py");
             }
-            //Then the actual data
-            string[] train_files = Directory.GetFiles(SourceFolder, "train*.csv");
+            
+            //Get random file for feature ist
+            string random_file = Directory.GetFiles(SourceFolder, "train.0.csv")[0];
 
-            string[] lines = File.ReadAllLines(train_files[0]);
+            string[] lines = File.ReadAllLines(random_file);
+
+            AllOriginalFeatures = lines[0].Split(",");
             
             //Get features from the first file
             if (Features.Length == 0){
                 Features = lines[0].Split(",");
             }
-            var all_original_features = lines[0].Split(",");
+            
             var isSparseBitmask = GenerateIsSparseBitMask(Features).ToArray();
 
             //BaseIndexes are the index value of the features computed in the following way: e.g. suppose SrcAddr are 1..10, SrcPort are 1..100
@@ -236,11 +346,15 @@ class Program
             //actually saved in the csv it's their index (e.g. SrcAddr1 -> 1, SrcAddr2 -> 2, ..., SrcAddr10 -> 10)
             BaseIndexes = new int[isSparseBitmask.Length];
             var cumulative = 0;
+            BaseIndexes[0] = 0;
+
+            Console.WriteLine("BaseIndexes.Length: " + BaseIndexes.Length + " Features.Count(): " + Features.Count());
+
             for(int i = 0; i < Features.Length; i++)
             {
+                BaseIndexes[i] = cumulative;
                 // if (Features[i] == "label")
                 //     continue;
-                BaseIndexes[i] = cumulative;
                 if (!isSparseBitmask[i])
                 {
                     cumulative++;
@@ -250,48 +364,8 @@ class Program
                     cumulative += sparseFeatureIndex[Features[i]]["max"] + 1;
                 }
             }
-
-            //Get data from all files
-            double[] row_dbl = new double[Features.Length];
             
-            Console.WriteLine("Opening files...");
-            foreach(string file in train_files)
-            {
-                Console.WriteLine("Opening train file " + file);
-
-                lines = File.ReadAllLines(file);
-
-                foreach(string line in lines.Skip(1))
-                {
-                    List<string> row_str = new List<string>(line.Split(","));
-                    // features_to_skip
-                    row_str.SkipLast(1).ForEach( (int i, string data) => 
-                            {
-                                var feature = all_original_features[i];
-                                if (Array.Find(Features, x => x == feature) != null)
-                                    row_dbl[Features.FindIndex(x => x == feature)] = Double.Parse(data) + 1;
-                            });
-                    
-                    // row_str.SkipLast(1).ForEach( (int i, string data) => Console.WriteLine(i + " " + data));
-
-                    
-                    Instance inst = new Instance(row_dbl, BaseIndexes, isSparseBitmask, row_str.Last());
-                    Data.Add(inst);
-                    // Get label at the end of the row
-                    Label.Add(row_str.Last());
-                }
-            }
-
-            //Training the classifier
-            // Create the Bayes Point Machine classifier from the mapping  
-            var mapping = new DataMapping(cumulative+1);  
-            var classifier = BayesPointMachineClassifier.CreateBinaryClassifier(mapping);
-            Console.WriteLine("Training classifier");
-            classifier.Train(Data, Label);
-            classifier.Save("bpm.bin");
-
-            Console.WriteLine("Evaluating classifier");
-            Evaluate(mapping, classifier);
+            BaseIndexes[BaseIndexes.Length-1] = cumulative;
 
 
         }
@@ -300,6 +374,23 @@ class Program
             Console.WriteLine($"Directory not found: {SourceFolder}");
         }
 
+        switch(Mode)
+        {
+            case "inference":
+                Run();
+                break;
+            case "evaluate":
+                Evaluate.Run(SourceFolder, OutputFolder);
+                break;
+            case "both":
+                Run();
+                Evaluate.Run(SourceFolder, OutputFolder);
+                break;
+            
+            default:
+                break;
+        }
+        
     }
 }
 
