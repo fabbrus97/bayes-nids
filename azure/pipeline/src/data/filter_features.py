@@ -18,7 +18,7 @@ import json
 MAX_FILE_INPUT = 20
 
 def plot_permutation_importance(result, X, ax):
-    perm_sorted_idx = result.importances_mean.argsort()
+    perm_sorted_idx = result.importances_mean.argsort()[:5] #get only top 5
 
     ax.boxplot(
         result.importances[perm_sorted_idx].T,
