@@ -68,7 +68,7 @@ def permutation_feature_importance(dist_linkage):
     r = permutation_importance(model, X_val_sel, y_val,
                                n_repeats=30,
                                random_state=0,
-                               n_jobs=args.threads)
+                               n_jobs=args.nthreads)
     print("done, output...")
     
     # print(r)
