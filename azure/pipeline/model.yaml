@@ -1,0 +1,25 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+type: command
+
+name: bayes_point_machine
+display_name: Bayes Point Machine
+version: 1
+
+inputs:
+  # train, evaluate or both
+  component_input_mode:
+    type: string
+  component_input_path:
+    type: uri_folder
+
+outputs:
+  component_output_path:
+    type: uri_folder
+
+code: ./src/model/BayesNetworkBinClassifier
+
+environment: 
+  image: ghcr.io/fabbrus97/bayes-nids-attack:main
+
+command: >-
+  dotnet run -s ${{inputs.component_input_path}} -o ${{outputs.component_output_path}} -m ${{inputs.component_input_mode}}

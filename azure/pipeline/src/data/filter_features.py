@@ -13,8 +13,20 @@ import threading
 import numpy as np
 from scipy.cluster import hierarchy
 from collections import defaultdict
+import json
 
 MAX_FILE_INPUT = 20
+
+def plot_permutation_importance(result, X, ax):
+    perm_sorted_idx = result.importances_mean.argsort()
+
+    ax.boxplot(
+        result.importances[perm_sorted_idx].T,
+        vert=False,
+        labels=X.columns[perm_sorted_idx],
+    )
+    ax.axvline(x=0, color="k", linestyle="--")
+    return ax
 
 def permutation_feature_importance(dist_linkage):
     global df
@@ -53,24 +65,10 @@ def permutation_feature_importance(dist_linkage):
         f" {model.score(X_val_sel, y_val):.2}"
     )
 
-    # print("pfi: training model")
-    # X_train, X_val, y_train, y_val = train_test_split(
-    #     df, df['label'], random_state=42, test_size=0.3)
-    #     #df, test_size=0.2, random_state=42, shuffle=True)
-    
-    # X_train.drop("label", inplace=True, axis=1)
-    # X_val.drop("label", inplace=True, axis=1)
-    # print(X_train)
-
-    # # model = Ridge(alpha=1e-2).fit(X_train, y_train)
-    # model = BernoulliNB().fit(X_train, y_train)
-    # print("computing scores")
-    # score = model.score(X_val, y_val)
-    # print("Model score:", score)
-
     r = permutation_importance(model, X_val_sel, y_val,
                                n_repeats=30,
-                               random_state=0)
+                               random_state=0,
+                               n_jobs=args.threads)
     print("done, output...")
     
     # print(r)
@@ -89,6 +87,17 @@ def permutation_feature_importance(dist_linkage):
     for ft in final_features:
         filter_features.write(f"{ft}\n")
     filter_features.close()
+
+    json.dump(list(r), open(os.path.join(args.output_path, "permutation_feature_importance.json"), "w"))
+
+    fig, ax = plt.subplots(figsize=(7, 6))
+    plot_permutation_importance(r, X_val_sel, ax)
+    ax.set_title("Permutation Importances on selected subset of features\n(test set)")
+    ax.set_xlabel("Decrease in accuracy score")
+    ax.figure.tight_layout()
+    plt.savefig(os.path.join(args.output_path, "permutation_feature_importance.png"))
+
+
 
 def infogain_thread(df, columns):
     counter = 1
@@ -142,87 +151,22 @@ def information_gain():
         # df_mi[col] = mi
     df_mutual_information = (df_mutual_information-df_mutual_information.min())/(df_mutual_information.max()-df_mutual_information.min())
 
+    plt.figure(figsize=(20, 18))
+    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
+    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
+    # plt.show()
+    plt.savefig(os.path.join(args.output_path, "mutual_information_gain.png"))
+
+    df_mutual_information.to_csv(os.path.join(args.output_path, "mutual_information_gain.csv"))
+
     # We convert the correlation matrix to a distance matrix before performing
     # hierarchical clustering using Ward's linkage.
     distance_matrix = 1 - np.abs(df_mutual_information)
     dist_linkage = hierarchy.ward(distance_matrix)    
+
+
+
     return dist_linkage #TODO
-    # dist_linkage = hierarchy.ward(squareform(distance_matrix))    
-
-    # print(df_mutual_information)
-    for col in df_mutual_information.columns:
-        print(col)
-        # print(df_mutual_information.loc[col]["label"])
-        if df_mutual_information.loc[col]["label"] < args.value:
-            print("val too low, dropping", col)
-            df_mutual_information.drop(col, inplace=True)
-            df_mutual_information.drop(col, axis=1, inplace=True)
-
-        elif col != "label" and not df_mutual_information[col].any():
-            print("all nan, dropping", col)
-            # print(df_mutual_information.loc[col])
-            df_mutual_information.drop(col, inplace=True, axis=1)
-            # print("now df is")
-            # print(df_mutual_information)
-            
-            # continue
-
-    print(df_mutual_information)
-    
-
-    plt.figure(figsize=(20, 18))
-    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
-    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
-    # plt.show()
-    plt.savefig(os.path.join("filter_output", "infogain_with_corr_feats.png"))
-    df_mutual_information.to_csv(os.path.join("filter_output", "infogain_with_corr_feats.csv")) #TODO
-   
-    #remove mutual correlated features
-    rows2delete = set()
-    for row in df_mutual_information.index.to_list():
-        if row == "label":
-            continue
-        for col in df_mutual_information.columns.to_list():
-            
-            print("examining row, col:", row, col)
-            
-            if col == df_mutual_information.columns[-1]: #"label":
-                print("label col found, skipping")
-                continue
-            if row == col:
-                print("row==col, skipping")
-                continue
-
-            if df_mutual_information.loc[row][col] > 0.7: #made up value for correlation 
-                #the variable row is correlated with col
-                print("they are correlated! value:", df_mutual_information.loc[row][col])
-                if df_mutual_information.loc[row]["label"] < df_mutual_information.loc[col]["label"]:
-                    print(row, "is the least correlated with label:", df_mutual_information.loc[row]["label"], "vs", df_mutual_information.loc[col]["label"])
-                    # df_mutual_information.drop(row, inplace=True)
-                    rows2delete.add(row)
-                else:
-                    # df_mutual_information.drop(col, inplace=True)
-                    print(col, "is the least correlated with label:", df_mutual_information.loc[col]["label"], "vs", df_mutual_information.loc[row]["label"])
-                    rows2delete.add(col)
-
-    print("rows2delete:", rows2delete)
-
-    for i in rows2delete:
-        df_mutual_information.drop(i, inplace=True)
-  
-    print(df_mutual_information)
-    # input()
-
-    plt.figure(figsize=(20, 18))
-    # sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds)
-    sns.heatmap(df_mutual_information, annot=True, cmap=plt.cm.Reds, annot_kws={'fontsize': 5})
-    # plt.show()
-    plt.savefig(os.path.join("filter_output", "infogain.png"))
-    df_mutual_information.to_csv(os.path.join("filter_output", "infogain.csv")) #TODO make folder filter_output
-    feature_list_file = open(os.path.join("filter_output", "feature_list.txt"), "w")
-    feature_list_file.write(",".join([i[0] for i in df_mutual_information.index.values.tolist()]) + "\n")
-    return df_mutual_information.index
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -231,8 +175,6 @@ if __name__ == "__main__":
     )
     parser.add_argument("--input_path", required=True)
     parser.add_argument("--output_path", required=True)
-    parser.add_argument("--value", required=False, default=0.5, type=float) #remove features with importance score less than this value
-    parser.add_argument("--method", required=True, choices=["infogain", "pfi", "all"])
     parser.add_argument("--nthreads", required=False, default=1, type=int)
 
     args = parser.parse_args()
@@ -256,10 +198,5 @@ if __name__ == "__main__":
     df['label'], _ = pd.factorize(df['label'])
 
 
-    if args.method == "infogain":
-        information_gain()
-    elif args.method == "pfi":
-        permutation_feature_importance([])
-    else:
-        features = information_gain()
-        permutation_feature_importance(features)
+    features = information_gain()
+    permutation_feature_importance(features)

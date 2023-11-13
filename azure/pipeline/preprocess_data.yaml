@@ -18,7 +18,7 @@ outputs:
 code: ./src/data
 
 environment: 
-  image: amancevice/pandas
+  image: ghcr.io/fabbrus97/bayes-nids-attack:main
 
 command: >-
   python3 preprocess_data.py --input_path ${{inputs.component_input_path}} --output_path ${{outputs.component_output_path}} --nthreads 4 --traffic_type ${{inputs.component_input_traffic_type}}
