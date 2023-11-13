@@ -1,6 +1,6 @@
 matplotlib
 scipy
-sklearn
+scikit-learn
 argparse
 numpy
 pandas
