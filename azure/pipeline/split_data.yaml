@@ -3,13 +3,16 @@ type: command
 
 name: split_data
 display_name: Split data
-version: 1
+version: 2
 
 inputs:
   #fraction for test set - e.g. 0.30 => 70% train, 30% test
   component_input_fraction:
     type: number
-  component_input_path:
+  #note: these paths must be the same
+  component_input_path_normal:
+    type: uri_folder
+  component_input_path_attack:
     type: uri_folder
 
 outputs:
@@ -22,4 +25,4 @@ environment:
   image: ghcr.io/fabbrus97/bayes-nids-attack:main
 
 command: >-
-  python3 split_data.py --input_path ${{inputs.component_input_path}} --output_path ${{outputs.component_output_path}} --fraction ${{inputs.component_input_fraction}}
+  python3 split_data.py --input_path ${{inputs.component_input_path_normal}} --output_path ${{outputs.component_output_path}} --fraction ${{inputs.component_input_fraction}}
