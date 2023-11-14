@@ -40,13 +40,13 @@ def producer():
             
         if file is not None:
             # print("Opening normal file", file)
-            df_normal = pd.read_csv(os.path.join(args.input_path, file))
+            df_normal = pd.read_csv(os.path.join(args.input_path_normal, file))
             samplemutex.acquire()
             input_row_df = pd.concat([input_row_df, df_normal])
             samplemutex.release()
         if file_attack is not None:
             # print("Opening attack file", file_attack)
-            df_attack = pd.read_csv(os.path.join(args.input_path, file_attack))
+            df_attack = pd.read_csv(os.path.join(args.input_path_attack, file_attack))
             samplemutex.acquire()
             input_row_attack_df = pd.concat([input_row_attack_df, df_attack])
             samplemutex.release()
