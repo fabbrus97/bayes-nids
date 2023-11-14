@@ -3,7 +3,7 @@ type: command
 
 name: preprocess_data
 display_name: Preprocess dataset
-version: 4
+version: 5
 
 inputs:
   component_input_traffic_type:
@@ -18,7 +18,7 @@ outputs:
 code: ./src/data
 
 environment: 
-  image: ghcr.io/fabbrus97/bayes-nids-attack:main
+  image: ghcr.io/fabbrus97/bayes-nids-azureenv:main
 
 command: >-
   python3 preprocess_data.py --input_path ${{inputs.component_input_path}} --output_path ${{outputs.component_output_path}} --nthreads 4 --traffic_type ${{inputs.component_input_traffic_type}}
