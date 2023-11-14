@@ -25,4 +25,4 @@ environment:
   image: ghcr.io/fabbrus97/bayes-nids-azureenv:main
 
 command: >-
-  python3 split_data.py --input_path ${{inputs.component_input_path_normal}} --output_path ${{outputs.component_output_path}} --fraction ${{inputs.component_input_fraction}}
+  python3 split_data.py --input_path_normal ${{inputs.component_input_path_normal}} --input_path_attack ${{inputs.component_input_path_attack}} --output_path ${{outputs.component_output_path}} --fraction ${{inputs.component_input_fraction}}

@@ -165,7 +165,8 @@ if __name__ == "__main__":
         prog="split_data.py",
         description="Split data into training and testing dataset."
     )
-    parser.add_argument("--input_path", required=True)
+    parser.add_argument("--input_path_normal", required=True)
+    parser.add_argument("--input_path_attack", required=True)
     parser.add_argument("--output_path", required=True)
     parser.add_argument("--fraction", required=True, type=float) #fraction that will go in the test e.g. 0.3 = 70% train, 30% test
 
@@ -192,12 +193,12 @@ if __name__ == "__main__":
     producerSem = threading.Semaphore(0)
     consumerSem = threading.Semaphore(0)
     samplemutex = threading.Lock()
-    for file in os.listdir(args.input_path):
+    for file in os.listdir(args.input_path_normal):
         if file.endswith(".csv"):
-            if file.find("attack") >= 0:
+            input_path_queue.append(file)
+    for file in os.listdir(args.input_path_attack):
+        if file.endswith(".csv"):
                 input_path_attack_queue.append(file)
-            else:
-                input_path_queue.append(file)
 
     random.shuffle(input_path_queue)
     random.shuffle(input_path_attack_queue)
