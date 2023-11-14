@@ -212,4 +212,4 @@ if __name__ == "__main__":
         threads[i].join()
         
     
-    json.dump(sparse_features, open(os.path.join("dataset", "sparse_features_max_index.json"), "w"), indent="  ")
+    json.dump(sparse_features, open(os.path.join(args.output_path, "sparse_features_max_index.json"), "w"), indent="  ")
