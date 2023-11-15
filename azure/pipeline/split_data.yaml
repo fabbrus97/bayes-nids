@@ -3,7 +3,7 @@ type: command
 
 name: split_data
 display_name: Split data
-version: 6
+version: 7
 
 inputs:
   #fraction for test set - e.g. 0.30 => 70% train, 30% test

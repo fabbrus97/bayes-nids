@@ -85,7 +85,8 @@ def permutation_feature_importance(dist_linkage):
     
     filter_features = open(os.path.join(args.output_path, "feature_list.txt"), "w")
     for ft in final_features:
-        filter_features.write(f"{ft}\n")
+        filter_features.write(f"{ft},")
+    filter_features.write("\n")
     filter_features.close()
 
     json.dump(list(r), open(os.path.join(args.output_path, "permutation_feature_importance.json"), "w"))

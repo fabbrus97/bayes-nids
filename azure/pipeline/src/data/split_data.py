@@ -10,7 +10,6 @@ LIMIT = 500000
 QUEUEDONE = False
 
 def producer():
-    global counter
     global input_row_df
     global input_row_attack_df
     global QUEUEDONE
@@ -20,7 +19,6 @@ def producer():
         file_attack = None
         mutex.acquire()
         
-        counter += 1
         hasWork = False
         if len(input_path_queue) > 0 and len(input_row_df.index) <= LIMIT:
             file = input_path_queue.pop()
@@ -113,15 +111,13 @@ def get_sample(fraction, normal):
 
 def process_csv():
     global sparse_features
-    global counter
     global QUEUEDONE
-
+    n = 0
     while True:
         mutex.acquire()
         if QUEUEDONE:
             mutex.release()
             break
-        n = counter
         mutex.release()
         
         test_normal_sample = get_sample(args.fraction, True)
@@ -156,6 +152,7 @@ def process_csv():
 
         train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"), index=False)
         test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"), index=False)
+        n += 1
         # train = train.sample(frac=1).reset_index(drop=True) #shuffle in place
         # test = test.sample(frac=1).reset_index(drop=True) #shuffle in place
 
@@ -176,7 +173,6 @@ if __name__ == "__main__":
     input_path_attack_queue = []
     input_row_df = pd.DataFrame()
     input_row_attack_df = pd.DataFrame()
-    counter = 0
     sparse_features = {
         "SrcAddr": {"max": 0, "min": 65000},
         "DstAddr": {"max": 0, "min": 65000},
