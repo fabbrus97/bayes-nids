@@ -103,6 +103,8 @@ class Evaluate
             {
                 IncludeFields = true,
             };
+
+        options.JsonSerializerOptions.Converters.Add(new NetTopologySuite.IO.Converters.GeoJsonConverterFactory());
         
 
         var confusionMatrix = Evaluator.ConfusionMatrix(TestSet, Estimates);  
