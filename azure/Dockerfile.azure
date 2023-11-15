@@ -1,14 +1,14 @@
 FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && apt-get install -y wget dotnet-sdk-6.0
 # https://stackoverflow.com/questions/73753672/a-fatal-error-occurred-the-folder-usr-share-dotnet-host-fxr-does-not-exist
-RUN echo "Package: * \
-Pin: origin 'packages.microsoft.com' \
-Pin-Priority: 1001" > /etc/apt/preferences.d/99microsoft-dotnet.pref
-RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-RUN dpkg -i packages-microsoft-prod.deb
-RUN rm packages-microsoft-prod.deb
-RUN apt-get update && apt-get install -y dotnet-runtime-6.0 dotnet-sdk-6.0
+#RUN echo "Package: * \
+#Pin: origin 'packages.microsoft.com' \
+#Pin-Priority: 1001" > /etc/apt/preferences.d/99microsoft-dotnet.pref
+#RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+#RUN dpkg -i packages-microsoft-prod.deb
+#RUN rm packages-microsoft-prod.deb
+#RUN apt-get update && apt-get install -y dotnet-runtime-6.0 dotnet-sdk-6.0
 RUN apt-get update && apt-get install -y python3-pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
