@@ -102,10 +102,9 @@ class Evaluate
         var options = new JsonSerializerOptions
             {
                 IncludeFields = true,
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals,
             };
 
-        options.JsonSerializerOptions.Converters.Add(new NetTopologySuite.IO.Converters.GeoJsonConverterFactory());
-        
 
         var confusionMatrix = Evaluator.ConfusionMatrix(TestSet, Estimates);  
         var jsonString = JsonSerializer.Serialize(confusionMatrix, options);
