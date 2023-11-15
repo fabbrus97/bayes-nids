@@ -1,6 +1,10 @@
 FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y wget
+# https://stackoverflow.com/questions/73753672/a-fatal-error-occurred-the-folder-usr-share-dotnet-host-fxr-does-not-exist
+RUN echo "Package: * \
+Pin: origin 'packages.microsoft.com' \
+Pin-Priority: 1001" > /etc/apt/preferences.d/99microsoft-dotnet.pref
 RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 RUN dpkg -i packages-microsoft-prod.deb
 RUN rm packages-microsoft-prod.deb
