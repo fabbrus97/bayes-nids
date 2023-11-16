@@ -13,7 +13,7 @@ def producer():
     global input_row_df
     global input_row_attack_df
     global QUEUEDONE
-    
+
     while True:
         file = None
         file_attack = None
@@ -25,6 +25,8 @@ def producer():
             hasWork = True
         if len(input_path_attack_queue) > 0 and len(input_row_attack_df.index) <= LIMIT:
             file_attack = input_path_attack_queue.pop()
+            hasWork = True
+        if not hasWork and (len(input_row_df) > 500 and len(input_row_attack_df) > 500):
             hasWork = True
         mutex.release()
 
@@ -40,13 +42,13 @@ def producer():
             # print("Opening normal file", file)
             df_normal = pd.read_csv(os.path.join(args.input_path_normal, file))
             samplemutex.acquire()
-            input_row_df = pd.concat([input_row_df, df_normal])
+            input_row_df = pd.concat([input_row_df, df_normal], ignore_index=True)
             samplemutex.release()
         if file_attack is not None:
             # print("Opening attack file", file_attack)
             df_attack = pd.read_csv(os.path.join(args.input_path_attack, file_attack))
             samplemutex.acquire()
-            input_row_attack_df = pd.concat([input_row_attack_df, df_attack])
+            input_row_attack_df = pd.concat([input_row_attack_df, df_attack], ignore_index=True)
             samplemutex.release()
         
         
@@ -71,36 +73,45 @@ def producer():
             samplemutex.release()
             
 
-def get_sample(fraction, normal):
+def get_sample(lines2get, normal):
     global input_row_df
     global input_row_attack_df
+    # lines2get = 10000
     while True:
-        
         mutex.acquire()
         if QUEUEDONE:
             mutex.release()
-            return pd.DataFrame()
+            return 0, pd.DataFrame()
         mutex.release()
 
         samplemutex.acquire()
         l1 = len(input_row_df.index)
         l2 = len(input_row_attack_df.index)
 
-        if l1 < 20000 or l2 < 20000:
+        if (normal and l1 < lines2get) or (not normal and l2 < lines2get):
             # print("Not enough data")
             samplemutex.release()
+            # print("not enough data: requested", lines2get, "available normal:", l1, "av. attack:", l2, "- halving x =>", int(lines2get*0.5), "?")
+            if (not normal and len(input_path_attack_queue) == 0) or (normal and len(input_path_queue) == 0): #NOTE this is optimistic
+                #because if there are not enough samlpes in the queue, but there are some files left to open, we can wait to read these files
+                #but this assumes that the files are big enough to reach the target "lines2get", which is not always the case (e.g. the new files can contains 1 line
+                # instead of 10000)
+                lines2get = int(lines2get*0.5)
             consumerSem.acquire()
             continue
         
+        
         if normal:
-            data = input_row_df.sample(n=int(10000*fraction))
+            data = input_row_df.sample(n=lines2get, axis=0)
             input_row_df.drop(data.index, inplace=True)
         else:
-            data = input_row_attack_df.sample(n=int(10000*fraction))
+            data = input_row_attack_df.sample(n=lines2get, axis=0)
             input_row_attack_df.drop(data.index, inplace=True)
         producerSem.release() #notify the producer we have freed some space in the buffer
         samplemutex.release()
-        return data
+        # if normal:
+        #     print("DEBUG requiring", x, "rows and getting", len(data.index))
+        return lines2get, data
 
     # samplemutex.acquire()
     # data = input_row_df.sample(n=int(10000*fraction))
@@ -113,6 +124,10 @@ def process_csv():
     global sparse_features
     global QUEUEDONE
     n = 0
+
+    DEBUG_lines_wrote = 0
+    DEBUG_lines_wrote_attack = 0
+
     while True:
         mutex.acquire()
         if QUEUEDONE:
@@ -120,13 +135,19 @@ def process_csv():
             break
         mutex.release()
         
-        test_normal_sample = get_sample(args.fraction, True)
-        test_attack_sample = get_sample(args.fraction, False)
-        train_normal_sample = get_sample(1-args.fraction, True)
-        train_attack_sample = get_sample(1-args.fraction, False)
+        n_sample, normal_data = get_sample(30000, True)
+        test_normal_sample = normal_data.sample(frac = args.fraction, axis=0)
+        train_normal_sample = normal_data.drop(index = test_normal_sample.index)
+        
+        n_sample_a, attack_data = get_sample(n_sample, False)
+        test_attack_sample = attack_data.sample(frac = args.fraction, axis=0, replace=False)
+        attack_data.drop(test_attack_sample.index, inplace=True)
+        train_attack_sample = attack_data
+
 
         if test_normal_sample.empty or test_attack_sample.empty \
             or train_normal_sample.empty or test_attack_sample.empty:
+            print("one of the dataset is empty, discarding...")
             continue
     
         test = pd.concat([test_normal_sample, test_attack_sample])
@@ -145,16 +166,22 @@ def process_csv():
             if local_indexmax[key] > sparse_features[key]["max"]:
                 sparse_features[key]["max"] = local_indexmax[key]
             if local_indexmin[key] < sparse_features[key]["min"]:
-                print("Found index", local_indexmin[key], "lesser than", sparse_features[key]["min"], "for sparse feature", key)
+                # print("Found index", local_indexmin[key], "lesser than", sparse_features[key]["min"], "for sparse feature", key)
                 sparse_features[key]["min"] = local_indexmin[key]
             
+        DEBUG_lines_wrote += len(test_normal_sample.index)
+        DEBUG_lines_wrote += len(train_normal_sample.index)
+        DEBUG_lines_wrote_attack += len(test_attack_sample.index)
+        DEBUG_lines_wrote_attack += len(train_attack_sample.index)
         
-
+        
+        
         train.to_csv(os.path.join(args.output_path, f"train.{n}.csv"), index=False)
         test.to_csv(os.path.join(args.output_path, f"test.{n}.csv"), index=False)
         n += 1
-        # train = train.sample(frac=1).reset_index(drop=True) #shuffle in place
-        # test = test.sample(frac=1).reset_index(drop=True) #shuffle in place
+        print("wrote to csv", DEBUG_lines_wrote, "samples of t traffic")
+        print("wrote to csv", DEBUG_lines_wrote_attack, "samples of attack traffic")
+        
 
 
 if __name__ == "__main__":
