@@ -18,7 +18,8 @@ import json
 MAX_FILE_INPUT = 20
 
 def plot_permutation_importance(result, X, ax):
-    perm_sorted_idx = result.importances_mean.argsort()[:5] #get only top 5
+    perm_sorted_idx = result.importances_mean.argsort()[-5:] #get only top 5
+    print(perm_sorted_idx)
 
     ax.boxplot(
         result.importances[perm_sorted_idx].T,
@@ -38,13 +39,13 @@ def permutation_feature_importance(dist_linkage):
         if col not in features:
             df.drop(columns=col, inplace=True)    
     """
-
     cluster_ids = hierarchy.fcluster(dist_linkage, 1, criterion="distance")
     cluster_id_to_feature_ids = defaultdict(list)
     for idx, cluster_id in enumerate(cluster_ids):
         cluster_id_to_feature_ids[cluster_id].append(idx)
     selected_features = [v[0] for v in cluster_id_to_feature_ids.values()]
     selected_features_names = df.columns[selected_features]
+   # selected_features_names="SrcLoad,DstPkts,DstTCPBase,SrcWin,SrcPkts,State,SrcBytes,dTtl,SrcLoss,SrcAddr,DstBytes".split(",")
 
     X_train, X_val, y_train, y_val = train_test_split(
         df, df['label'], random_state=42, test_size=0.3)
@@ -71,15 +72,13 @@ def permutation_feature_importance(dist_linkage):
                                n_jobs=args.nthreads)
     print("done, output...")
     
-    # print(r)
-    
     final_features = []
 
     for i in r.importances_mean.argsort()[::-1]:
         if r.importances_mean[i] - 2 * r.importances_std[i] > 0:
-            final_features.append(df.columns[i])
+            final_features.append(selected_features_names[i])
 
-            print(f"{df.columns[i]:<8}"
+            print(f"{selected_features_names[i]:<8}"
                   f"{r.importances_mean[i]:.3f}"
                   f" +/- {r.importances_std[i]:.3f}")
     
@@ -88,8 +87,13 @@ def permutation_feature_importance(dist_linkage):
         filter_features.write(f"{ft},")
     filter_features.write("\n")
     filter_features.close()
+    
+    r_list = {}
 
-    json.dump(list(r), open(os.path.join(args.output_path, "permutation_feature_importance.json"), "w"))
+    r_list["importances_mean"] = r["importances_mean"].tolist()
+    r_list["importances_std"] = r["importances_std"].tolist()
+    r_list["importances"] = r["importances"].tolist()
+    json.dump(r_list, open(os.path.join(args.output_path, "permutation_feature_importance.json"), "w"))
 
     fig, ax = plt.subplots(figsize=(7, 6))
     plot_permutation_importance(r, X_val_sel, ax)
